@@ -10,5 +10,7 @@ int asientos_libres();
 int asientos_ocupados();
 int capacidad();
 void elimina_sala();
+#define ASIENTO_LIBRE 0
+#define ASIENTO_OCUPADO 1
 
 #endif // SALA_H

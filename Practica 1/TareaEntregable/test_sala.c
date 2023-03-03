@@ -42,7 +42,6 @@ void test_ReservaBasica()
     FIN_TEST("Reserva básica");
 }
 
-
 void ejecuta_tests ()
 {
     test_ReservaBasica();
