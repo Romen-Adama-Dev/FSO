@@ -1,6 +1,7 @@
 #ifndef SALA_H  
 #define SALA_H
 
+
 // Definición de la estructura de datos
 typedef struct {
   int* asientos;

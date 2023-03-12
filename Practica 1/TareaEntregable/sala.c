@@ -142,6 +142,7 @@ void levantarse(int id) {
   }
 }
 
+
 int reserva_multiple(int npersonas, int* lista_id) {
   // Verificar si hay suficientes asientos libres para todas las personas
   int num_asientos_libres = asientos_libres();

@@ -123,6 +123,7 @@ void test_ReservaMultiple()
 void test_verificar_reservasCapacidad() {
   // Crear una sala con capacidad 5
   crea_sala(5);
+  
 
   // Reservar todos los asientos disponibles
   int lista_ids[5] = {1, 2, 3, 4, 5};
