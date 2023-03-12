@@ -1,5 +1,10 @@
 {
     "files.associations": {
         "sala.h": "c"
-    }
+    },
+    "cSpell.words": [
+        "Añadir",
+        "fuerza",
+        "nuevos"
+    ]
 }

@@ -36,20 +36,6 @@ void estado_sala() {
   }
 }
 
-void sentarse(int id) {
-  if (sala == NULL) {
-    printf("La sala no ha sido creada\n");
-    return;
-  }
-
-  int asiento = reserva_asiento(id);
-  if (asiento == -1) {
-    printf("Lo siento, la sala está llena\n");
-  } else {
-    printf("El asiento %d está asignado a la persona con id %d\n", asiento, id);
-  }
-}
-
 int reserva_asiento(int id) {
   if (sala == NULL) {
     return -1;
@@ -116,5 +102,43 @@ int capacidad() {
   }
 
   return sala->capacidad;
+}
+
+int sentarse(int id) {
+  for (int i = 0; i < capacidad(); i++) {
+    if (estado_asiento(i) == 0) {
+      reserva_asiento(id);
+      return i;
+    }
+  }
+  return -1;
+}
+
+void levantarse(int id) {
+  if (sala == NULL) {
+    printf("La sala no ha sido creada\n");
+    return;
+  }
+
+  int asiento = -1;
+  for (int i = 0; i < sala->capacidad; i++) {
+    if (sala->asientos[i] == id) {
+      asiento = i;
+      break;
+    }
+  }
+
+  if (asiento == -1) {
+    printf("Lo siento, la persona con id %d no tiene un asiento asignado\n", id);
+    return;
+  }
+
+  int result = libera_asiento(asiento);
+  if (result == -1) {
+    printf("Error: El asiento %d ya está libre\n", asiento);
+    return;
+  } else {
+    printf("El asiento %d ha sido liberado\n", asiento);
+  }
 }
 

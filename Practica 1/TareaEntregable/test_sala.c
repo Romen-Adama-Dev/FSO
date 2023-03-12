@@ -27,20 +27,21 @@ void FIN_TEST (const char* titulo_test)
 
 void test_ReservaBasica()
 {
-	int mi_asiento;
-	#define CAPACIDAD_CUYAS 500
-	#define ID_1 1500
+    int mi_asiento;
+    #define CAPACIDAD_CUYAS 500
+    #define ID_1 1500
 
-	INICIO_TEST("Reserva básica");
-	crea_sala(CAPACIDAD_CUYAS);
-	DebeSerCierto(capacidad()==CAPACIDAD_CUYAS);
-	DebeSerCierto((mi_asiento=reserva_asiento(ID_1))>=0);
-	DebeSerCierto((asientos_libres()+asientos_ocupados())==CAPACIDAD_CUYAS);
-	DebeSerCierto(estado_asiento(mi_asiento)>0);
-	DebeSerCierto(libera_asiento(mi_asiento)==ID_1);
-	DebeSerCierto((asientos_libres()+asientos_ocupados())==CAPACIDAD_CUYAS);
-	elimina_sala();
-	FIN_TEST("Reserva básica");
+    INICIO_TEST("Reserva básica");
+    crea_sala(CAPACIDAD_CUYAS);
+    DebeSerCierto(capacidad() == CAPACIDAD_CUYAS);
+    DebeSerCierto((mi_asiento = reserva_asiento(ID_1)) >= 0);
+    DebeSerCierto((asientos_libres() + asientos_ocupados()) == CAPACIDAD_CUYAS);
+    DebeSerCierto(estado_asiento(mi_asiento) > 0);
+    DebeSerCierto(libera_asiento(mi_asiento) == ID_1);
+    DebeSerCierto(asientos_ocupados() == 0);
+    DebeSerCierto(asientos_libres() == CAPACIDAD_CUYAS);
+    elimina_sala();
+    FIN_TEST("Reserva básica");
 }
 
 void test_EstadoSala()
@@ -60,11 +61,35 @@ void test_EstadoSala()
   FIN_TEST("Estado de la sala");
 }
 
+void test_SentarseYLevantarse()
+{
+  INICIO_TEST("Sentarse y levantarse");
+  crea_sala(10);
+  int asiento1 = reserva_asiento(1);
+  int asiento2 = reserva_asiento(2);
+  int asiento3 = reserva_asiento(3);
+
+  sentarse(asiento1);
+  sentarse(asiento2);
+  sentarse(asiento3);
+
+  estado_sala();
+
+  levantarse(asiento1);
+  levantarse(asiento2);
+  levantarse(asiento3);
+
+  estado_sala();
+
+  elimina_sala();
+  FIN_TEST("Sentarse y levantarse");
+}
 
 void ejecuta_tests ()
 {
 	test_ReservaBasica();
 	test_EstadoSala();
+	test_SentarseYLevantarse();
 	// Añadir nuevos tests 
 }
 
