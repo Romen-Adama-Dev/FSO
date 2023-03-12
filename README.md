@@ -1,0 +1,29 @@
+# FSO Repository
+
+This repository is created for uploading the projects and assignments that I will be working on throughout the year for the course "Fundamentals of Operating Systems". The course involves working in the terminal and completing projects in the C language.
+
+## Folder Structure
+
+- The `assignments` folder contains all the assignments that are given throughout the year.
+- The `projects` folder contains all the projects that are to be completed in the course.
+- The `resources` folder contains all the necessary resources such as reference materials, books, and links to online resources that will be used in the course.
+
+## Getting Started
+
+To get started with this repository, simply clone the repository to your local machine:
+
+
+
+Once the repository is cloned, you can start working on the assignments or projects by navigating to the respective folders in the terminal.
+
+## Contributing
+
+This repository is for personal use only and is not open for contributions from other users.
+
+## License
+
+This repository is licensed under the MIT License. Please see the `LICENSE` file for more details.
+
+## Acknowledgements
+
+I would like to thank the course instructors and fellow classmates for their support and assistance throughout the course.
