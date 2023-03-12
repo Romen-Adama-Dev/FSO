@@ -4,9 +4,10 @@ This repository is created for uploading the projects and assignments that I wil
 
 ## Folder Structure
 
-- The `assignments` folder contains all the assignments that are given throughout the year.
-- The `projects` folder contains all the projects that are to be completed in the course.
-- The `resources` folder contains all the necessary resources such as reference materials, books, and links to online resources that will be used in the course.
+- The `Practicas` folder contains all the assignments that are given throughout the year.
+- The `Proyectos Finalizados` folder contains all the projects that are to be completed in the course.
+- The `Recursos` folder contains all the necessary resources such as reference materials, books, and links to online resources that will be used in the course.
+- The `Script` An automated script is a set of predefined instructions that are executed automatically when triggered. In the context of a GitHub repository, an automated script can be used to update the repository without manual intervention.
 
 ## Getting Started
 
