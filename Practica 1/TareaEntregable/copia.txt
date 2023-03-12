@@ -1,0 +1,402 @@
+//V1.0
+//sala.c
+#include "sala.h"
+#include <stdlib.h>
+
+static Sala* sala = NULL;
+
+void crea_sala(int capacidad) {
+  sala = (Sala*)malloc(sizeof(Sala));
+  sala->capacidad = capacidad;
+  sala->asientos = (int*)malloc(capacidad * sizeof(int));
+  for (int i = 0; i < capacidad; i++) {
+    sala->asientos[i] = 0;
+  }
+}
+
+void elimina_sala() {
+  free(sala->asientos);
+  free(sala);
+  sala = NULL;
+}
+
+int reserva_asiento(int id) {
+  if (sala == NULL) {
+    return -1;
+  }
+
+  for (int i = 0; i < sala->capacidad; i++) {
+    if (sala->asientos[i] == 0) {
+      sala->asientos[i] = id;
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+int libera_asiento(int asiento) {
+  if (sala == NULL || asiento < 0 || asiento >= sala->capacidad) {
+    return -1;
+  }
+
+  if (sala->asientos[asiento] == 0) {
+    return -1;
+  }
+
+  int id = sala->asientos[asiento];
+  sala->asientos[asiento] = 0;
+  return id;
+}
+
+int estado_asiento(int asiento) {
+  if (sala == NULL || asiento < 0 || asiento >= sala->capacidad) {
+    return -1;
+  }
+
+  return sala->asientos[asiento];
+}
+
+int asientos_libres() {
+  if (sala == NULL) {
+    return -1;
+  }
+
+  int libres = 0;
+  for (int i = 0; i < sala->capacidad; i++) {
+    if (sala->asientos[i] == 0) {
+      libres++;
+    }
+  }
+
+  return libres;
+}
+
+int asientos_ocupados() {
+  if (sala == NULL) {
+    return -1;
+  }
+
+  return sala->capacidad - asientos_libres();
+}
+
+int capacidad() {
+  if (sala == NULL) {
+    return -1;
+  }
+
+  return sala->capacidad;
+}
+
+//sala.h
+#ifndef SALA_H
+#define SALA_H
+
+typedef struct {
+  int* asientos;
+  int capacidad;
+} Sala;
+
+void crea_sala(int capacidad);
+void elimina_sala();
+
+int reserva_asiento(int id);
+int libera_asiento(int asiento);
+int estado_asiento(int asiento);
+int asientos_libres();
+int asientos_ocupados();
+int capacidad();
+
+#endif
+
+//test_sala.c
+// test_sala.c
+// ===============
+// Batería de pruebas de la biblioteca "sala.h/sala.c"
+//
+
+#include <assert.h>
+#include "sala.h"
+#include <stdio.h>
+
+#define DebeSerCierto(x)	assert(x)
+#define DebeSerFalso(x)		assert(!(x))
+
+void INICIO_TEST (const char* titulo_test)
+{
+  printf("********** batería de pruebas para %s: ", titulo_test); 
+ 	// fflush fuerza que se imprima el mensaje anterior
+	// sin necesidad de utilizar un salto de línea
+	fflush(stdout);
+}
+
+void FIN_TEST (const char* titulo_test)
+{
+  printf ("********** hecho\n");
+}
+
+
+void test_ReservaBasica()
+{
+	int mi_asiento;
+	#define CAPACIDAD_CUYAS 500
+	#define ID_1 1500
+
+	INICIO_TEST("Reserva básica");
+	crea_sala(CAPACIDAD_CUYAS);
+	DebeSerCierto(capacidad()==CAPACIDAD_CUYAS);
+	DebeSerCierto((mi_asiento=reserva_asiento(ID_1))>=0);
+	DebeSerCierto((asientos_libres()+asientos_ocupados())==CAPACIDAD_CUYAS);
+	DebeSerCierto(estado_asiento(mi_asiento)>0);
+	DebeSerCierto(libera_asiento(mi_asiento)==ID_1);
+	DebeSerCierto((asientos_libres()+asientos_ocupados())==CAPACIDAD_CUYAS);
+	elimina_sala();
+	FIN_TEST("Reserva básica");
+}
+
+
+void ejecuta_tests ()
+{
+	test_ReservaBasica();
+	// Añadir nuevos tests 
+}
+
+int main()
+{
+	puts("Iniciando tests...");
+	
+	ejecuta_tests();
+	
+	puts("Batería de test completa.");
+}
+
+//V1.1
+//sala.c
+#include "sala.h"
+#include <stdlib.h>
+#include <stdio.h>
+
+static Sala* sala = NULL;
+
+void crea_sala(int capacidad) {
+  sala = (Sala*)malloc(sizeof(Sala));
+  sala->capacidad = capacidad;
+  sala->asientos = (int*)malloc(capacidad * sizeof(int));
+  for (int i = 0; i < capacidad; i++) {
+    sala->asientos[i] = 0;
+  }
+}
+
+void elimina_sala() {
+  free(sala->asientos);
+  free(sala);
+  sala = NULL;
+}
+
+void estado_sala() {
+  if (sala == NULL) {
+    printf("La sala no ha sido creada\n");
+    return;
+  }
+
+  printf("Resumen:\n");
+  printf("  Aforo: %d\n", sala->capacidad);
+  printf("  Asientos ocupados: %d\n", asientos_ocupados());
+  printf("  Asientos libres: %d\n", asientos_libres());
+  printf("\nEstado de los asientos:\n");
+
+  for (int i = 0; i < sala->capacidad; i++) {
+    printf("Asiento %d: %d\n", i, estado_asiento(i));
+  }
+}
+
+void sentarse(int id) {
+  if (sala == NULL) {
+    printf("La sala no ha sido creada\n");
+    return;
+  }
+
+  int asiento = reserva_asiento(id);
+  if (asiento == -1) {
+    printf("Lo siento, la sala está llena\n");
+  } else {
+    printf("El asiento %d está asignado a la persona con id %d\n", asiento, id);
+  }
+}
+
+int reserva_asiento(int id) {
+  if (sala == NULL) {
+    return -1;
+  }
+
+  for (int i = 0; i < sala->capacidad; i++) {
+    if (sala->asientos[i] == 0) {
+      sala->asientos[i] = id;
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+int libera_asiento(int asiento) {
+  if (sala == NULL || asiento < 0 || asiento >= sala->capacidad) {
+    return -1;
+  }
+
+  if (sala->asientos[asiento] == 0) {
+    return -1;
+  }
+
+  int id = sala->asientos[asiento];
+  sala->asientos[asiento] = 0;
+  return id;
+}
+
+int estado_asiento(int asiento) {
+  if (sala == NULL || asiento < 0 || asiento >= sala->capacidad) {
+    return -1;
+  }
+
+  return sala->asientos[asiento];
+}
+
+int asientos_libres() {
+  if (sala == NULL) {
+    return -1;
+  }
+
+  int libres = 0;
+  for (int i = 0; i < sala->capacidad; i++) {
+    if (sala->asientos[i] == 0) {
+      libres++;
+    }
+  }
+
+  return libres;
+}
+
+int asientos_ocupados() {
+  if (sala == NULL) {
+    return -1;
+  }
+
+  return sala->capacidad - asientos_libres();
+}
+
+int capacidad() {
+  if (sala == NULL) {
+    return -1;
+  }
+
+  return sala->capacidad;
+}
+
+//sala.h
+#ifndef SALA_H
+#define SALA_H
+
+typedef struct {
+  int* asientos;
+  int capacidad;
+} Sala;
+
+void crea_sala(int capacidad);
+void elimina_sala();
+void estado_sala();
+void sentarse(int id);
+
+int reserva_asiento(int id);
+int libera_asiento(int asiento);
+int estado_asiento(int asiento);
+int asientos_libres();
+int asientos_ocupados();
+int capacidad();
+int levantarse(int id);
+
+#endif
+
+//test_sala
+//test_sala.c
+// test_sala.c
+// ===============
+// Batería de pruebas de la biblioteca "sala.h/sala.c"
+//
+
+#include <assert.h>
+#include "sala.h"
+#include <stdio.h>
+
+#define DebeSerCierto(x)	assert(x)
+#define DebeSerFalso(x)		assert(!(x))
+
+void INICIO_TEST (const char* titulo_test)
+{
+  printf("********** batería de pruebas para %s: ", titulo_test); 
+ 	// fflush fuerza que se imprima el mensaje anterior
+	// sin necesidad de utilizar un salto de línea
+	fflush(stdout);
+}
+
+void FIN_TEST (const char* titulo_test)
+{
+  printf ("********** hecho\n");
+}
+
+
+void test_ReservaBasica()
+{
+	int mi_asiento;
+	#define CAPACIDAD_CUYAS 500
+	#define ID_1 1500
+
+	INICIO_TEST("Reserva básica");
+	crea_sala(CAPACIDAD_CUYAS);
+	DebeSerCierto(capacidad()==CAPACIDAD_CUYAS);
+	DebeSerCierto((mi_asiento=reserva_asiento(ID_1))>=0);
+	DebeSerCierto((asientos_libres()+asientos_ocupados())==CAPACIDAD_CUYAS);
+	DebeSerCierto(estado_asiento(mi_asiento)>0);
+	DebeSerCierto(libera_asiento(mi_asiento)==ID_1);
+	DebeSerCierto((asientos_libres()+asientos_ocupados())==CAPACIDAD_CUYAS);
+	elimina_sala();
+	FIN_TEST("Reserva básica");
+}
+
+void test_EstadoSala()
+{
+  INICIO_TEST("Estado de la sala");
+  crea_sala(10);
+  int asiento1 = reserva_asiento(1);
+  int asiento2 = reserva_asiento(2);
+  int asiento3 = reserva_asiento(3);
+
+  estado_sala();
+
+  libera_asiento(asiento1);
+  estado_sala();
+
+  elimina_sala();
+  FIN_TEST("Estado de la sala");
+}
+
+
+void ejecuta_tests ()
+{
+	test_ReservaBasica();
+	test_EstadoSala();
+	// Añadir nuevos tests 
+}
+
+int main()
+{
+	puts("Iniciando tests...");
+	
+	ejecuta_tests();
+	
+	puts("Batería de test completa.");
+}
+
+
+
+
+
