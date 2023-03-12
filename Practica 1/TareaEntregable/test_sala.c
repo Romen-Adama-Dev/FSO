@@ -1,18 +1,22 @@
-//test_sala.c
 // test_sala.c
 // ===============
 // Batería de pruebas de la biblioteca "sala.h/sala.c"
-//
+// Author Romen-Adama-Dev
+// Date: 12-03-2023
 
+
+// Incluimos las bibliotecas necesarias
 #include <assert.h>
 #include "sala.h"
 #include <stdio.h>
 #include <stdlib.h>
 
+// Definimos los macros para los tests
 #define DebeSerCierto(x)	assert(x)
 #define DebeSerFalso(x)		assert(!(x))
 #define DebeSerIgual(x,y)	assert((x) == (y))
 
+// Definimos las funciones auxiliares
 void INICIO_TEST (const char* titulo_test)
 {
   printf("********** batería de pruebas para %s: ", titulo_test); 
@@ -21,12 +25,13 @@ void INICIO_TEST (const char* titulo_test)
 	fflush(stdout);
 }
 
+// Función auxiliar para finalizar un test
 void FIN_TEST (const char* titulo_test)
 {
   printf ("********** hecho\n");
 }
 
-
+// Definimos las funciones de test
 void test_ReservaBasica()
 {
     int mi_asiento;
@@ -46,6 +51,7 @@ void test_ReservaBasica()
     FIN_TEST("Reserva básica");
 }
 
+// Definimos las funciones de test
 void test_EstadoSala()
 {
   INICIO_TEST("Estado de la sala");
@@ -63,6 +69,7 @@ void test_EstadoSala()
   FIN_TEST("Estado de la sala");
 }
 
+// Definimos las funciones de test
 void test_SentarseYLevantarse()
 {
   INICIO_TEST("Sentarse y levantarse");
@@ -87,6 +94,7 @@ void test_SentarseYLevantarse()
   FIN_TEST("Sentarse y levantarse");
 }
 
+// Definimos las funciones de test
 void test_ReservaMultiple()
 {
   INICIO_TEST("Reserva múltiple");
@@ -121,6 +129,7 @@ void test_ReservaMultiple()
   FIN_TEST("Reserva múltiple");
 }
 
+// Definimos las funciones de test
 void test_verificar_reservasCapacidad() {
   // Crear una sala con capacidad 5
   crea_sala(5);
@@ -147,16 +156,21 @@ void test_verificar_reservasCapacidad() {
   printf("El test 'test_verificar_reservasCapacidad' pasó correctamente\n");
 }
 
+// Definimos las funciones de test
 void test_ReservaAsientoInexistente()
 {
+	// Definimos los datos de entrada para el test
     int mi_asiento;
     #define CAPACIDAD_CUYAS 500
     #define ID_1 1500
     #define ID_INEXISTENTE 2500
 
+	// Iniciamos el test
     INICIO_TEST("Reserva de asiento inexistente");
     crea_sala(CAPACIDAD_CUYAS);
+	// Verificar que la capacidad de la sala sea la correcta
     DebeSerCierto(capacidad() == CAPACIDAD_CUYAS);
+	// Verificar que la reserva del asiento sea exitosa
     DebeSerCierto((mi_asiento = reserva_asiento(ID_1)) >= 0);
 
     // Verificar que el ID del asiento proporcionado sea válido
@@ -169,27 +183,37 @@ void test_ReservaAsientoInexistente()
     // Imprimir el valor devuelto por reserva_asiento para ayudarte a depurar el problema
     printf("Valor devuelto por reserva_asiento: %d\n", resultado);
 
+	// Verificar que el valor devuelto por reserva_asiento sea ERR_INVALID_SEAT
     DebeSerIgual(resultado, ERR_INVALID_SEAT);
+	// Verificar que la cantidad de asientos libres sea la correcta
     DebeSerCierto((asientos_libres() + asientos_ocupados()) == CAPACIDAD_CUYAS);
+	// Verificar que la cantidad de asientos ocupados sea la correcta
     DebeSerCierto(estado_asiento(mi_asiento) > 0);
+	// Verificar que la liberación del asiento sea exitosa
     DebeSerCierto(libera_asiento(mi_asiento) == ID_1);
+	// Verificar que la cantidad de asientos libres sea la correcta
     DebeSerCierto(asientos_ocupados() == 0);
+	// Verificar que la cantidad de asientos ocupados sea la correcta
     DebeSerCierto(asientos_libres() == CAPACIDAD_CUYAS);
+	// Eliminar la sala creada
     elimina_sala();
     FIN_TEST("Reserva de asiento inexistente");
 }
 
-
+// Definimos las funciones de test
 void ejecuta_tests ()
 {
+	// Ejecutamos los tests
 	test_ReservaBasica();
 	test_EstadoSala();
 	test_SentarseYLevantarse();
 	test_ReservaMultiple();
 	test_verificar_reservasCapacidad();
 	test_ReservaAsientoInexistente();
+	
 }
 
+// Función principal
 int main()
 {
 	puts("Iniciando tests...");

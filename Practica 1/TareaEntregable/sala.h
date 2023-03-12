@@ -1,13 +1,17 @@
+// Author Romen-Adama-Dev
+// Date: 12-03-2023
 #ifndef SALA_H  
 #define SALA_H
 #define ERR_NO_CAPACITY -2
 #define ERR_INVALID_SEAT -2
-// Definición de la estructura de datos
+
+// Data structure definition
 typedef struct {
   int* asientos;
   int capacidad;
 } Sala;
 
+// Void and int functions declaration
 void crea_sala(int capacidad);
 void elimina_sala();
 void estado_sala();
