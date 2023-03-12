@@ -7,6 +7,7 @@
 #include <assert.h>
 #include "sala.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 #define DebeSerCierto(x)	assert(x)
 #define DebeSerFalso(x)		assert(!(x))
@@ -85,19 +86,78 @@ void test_SentarseYLevantarse()
   FIN_TEST("Sentarse y levantarse");
 }
 
+void test_ReservaMultiple()
+{
+  INICIO_TEST("Reserva múltiple");
+
+  // Definimos los datos de entrada para el test
+  #define CAPACIDAD_SALA 10
+  int lista_id[] = {1, 2, 3};
+  int npersonas = 3;
+
+  // Creamos la sala con la capacidad especificada
+  crea_sala(CAPACIDAD_SALA);
+
+  // Realizamos la reserva múltiple
+  DebeSerCierto(reserva_multiple(npersonas, lista_id) == 0);
+
+  // Verificamos que los asientos estén ocupados
+  DebeSerCierto(asientos_ocupados() == npersonas);
+  DebeSerCierto(asientos_libres() == CAPACIDAD_SALA - npersonas);
+
+  // Liberamos los asientos reservados
+  for (int i = 0; i < npersonas; i++) {
+    libera_asiento(i);
+  }
+
+  // Verificamos que los asientos estén libres nuevamente
+  DebeSerCierto(asientos_ocupados() == 0);
+  DebeSerCierto(asientos_libres() == CAPACIDAD_SALA);
+
+  // Eliminamos la sala
+  elimina_sala();
+
+  FIN_TEST("Reserva múltiple");
+}
+
+void test_verificar_reservasCapacidad() {
+  // Crear una sala con capacidad 5
+  crea_sala(5);
+
+  // Reservar todos los asientos disponibles
+  int lista_ids[5] = {1, 2, 3, 4, 5};
+  int resultado = reserva_multiple(5, lista_ids);
+  if (resultado != 0) {
+    printf("Error al reservar asientos\n");
+    exit(1);
+  }
+
+  // Intentar reservar un asiento más
+  int id_nuevo = 6;
+  resultado = reserva_asiento(id_nuevo);
+  if (resultado != -1) {
+    printf("Error: Se reservó un asiento cuando ya no hay capacidad disponible\n");
+    exit(1);
+  }
+
+  // Eliminar la sala creada
+  elimina_sala();
+
+  printf("El test 'test_verificar_reservasCapacidad' pasó correctamente\n");
+}
+
 void ejecuta_tests ()
 {
 	test_ReservaBasica();
 	test_EstadoSala();
 	test_SentarseYLevantarse();
-	// Añadir nuevos tests 
+	test_ReservaMultiple();
+	test_verificar_reservasCapacidad();
 }
 
 int main()
 {
 	puts("Iniciando tests...");
-	
 	ejecuta_tests();
-	
 	puts("Batería de test completa.");
 }

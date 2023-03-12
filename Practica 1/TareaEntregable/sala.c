@@ -142,3 +142,30 @@ void levantarse(int id) {
   }
 }
 
+int reserva_multiple(int npersonas, int* lista_id) {
+  // Verificar si hay suficientes asientos libres para todas las personas
+  int num_asientos_libres = asientos_libres();
+  if (num_asientos_libres < npersonas) {
+    printf("No hay suficientes asientos libres para todas las personas\n");
+    return -1;
+  }
+
+  // Reservar asientos para todas las personas en la lista de identificadores
+  int asientos_reservados = 0;
+  for (int i = 0; i < npersonas; i++) {
+    int asiento = reserva_asiento(lista_id[i]);
+    if (asiento == -1) {
+      printf("Error al reservar asiento para la persona con id %d\n", lista_id[i]);
+      // Liberar todos los asientos que se hayan reservado hasta el momento
+      for (int j = 0; j < asientos_reservados; j++) {
+        libera_asiento(j);
+      }
+      return -1;
+    }
+    asientos_reservados++;
+  }
+
+  // La operación fue exitosa, devolver 0
+  return 0;
+}
+

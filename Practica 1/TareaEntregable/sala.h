@@ -18,5 +18,6 @@ int asientos_ocupados();
 int capacidad();
 int sentarse(int id);
 void levantarse(int id);
+int reserva_multiple(int npersonas, int* lista_id);
 
 #endif
