@@ -11,6 +11,7 @@
 
 #define DebeSerCierto(x)	assert(x)
 #define DebeSerFalso(x)		assert(!(x))
+#define DebeSerIgual(x,y)	assert((x) == (y))
 
 void INICIO_TEST (const char* titulo_test)
 {
@@ -123,7 +124,6 @@ void test_ReservaMultiple()
 void test_verificar_reservasCapacidad() {
   // Crear una sala con capacidad 5
   crea_sala(5);
-  
 
   // Reservar todos los asientos disponibles
   int lista_ids[5] = {1, 2, 3, 4, 5};
@@ -136,7 +136,7 @@ void test_verificar_reservasCapacidad() {
   // Intentar reservar un asiento más
   int id_nuevo = 6;
   resultado = reserva_asiento(id_nuevo);
-  if (resultado != -1) {
+  if (resultado != ERR_NO_CAPACITY) {
     printf("Error: Se reservó un asiento cuando ya no hay capacidad disponible\n");
     exit(1);
   }
@@ -147,6 +147,39 @@ void test_verificar_reservasCapacidad() {
   printf("El test 'test_verificar_reservasCapacidad' pasó correctamente\n");
 }
 
+void test_ReservaAsientoInexistente()
+{
+    int mi_asiento;
+    #define CAPACIDAD_CUYAS 500
+    #define ID_1 1500
+    #define ID_INEXISTENTE 2500
+
+    INICIO_TEST("Reserva de asiento inexistente");
+    crea_sala(CAPACIDAD_CUYAS);
+    DebeSerCierto(capacidad() == CAPACIDAD_CUYAS);
+    DebeSerCierto((mi_asiento = reserva_asiento(ID_1)) >= 0);
+
+    // Verificar que el ID del asiento proporcionado sea válido
+    if (ID_INEXISTENTE < 0 || ID_INEXISTENTE >= CAPACIDAD_CUYAS) {
+        printf("Error: el ID del asiento proporcionado no es válido\n");
+        exit(1);
+    }
+
+    int resultado = reserva_asiento(ID_INEXISTENTE);
+    // Imprimir el valor devuelto por reserva_asiento para ayudarte a depurar el problema
+    printf("Valor devuelto por reserva_asiento: %d\n", resultado);
+
+    DebeSerIgual(resultado, ERR_INVALID_SEAT);
+    DebeSerCierto((asientos_libres() + asientos_ocupados()) == CAPACIDAD_CUYAS);
+    DebeSerCierto(estado_asiento(mi_asiento) > 0);
+    DebeSerCierto(libera_asiento(mi_asiento) == ID_1);
+    DebeSerCierto(asientos_ocupados() == 0);
+    DebeSerCierto(asientos_libres() == CAPACIDAD_CUYAS);
+    elimina_sala();
+    FIN_TEST("Reserva de asiento inexistente");
+}
+
+
 void ejecuta_tests ()
 {
 	test_ReservaBasica();
@@ -154,6 +187,7 @@ void ejecuta_tests ()
 	test_SentarseYLevantarse();
 	test_ReservaMultiple();
 	test_verificar_reservasCapacidad();
+	test_ReservaAsientoInexistente();
 }
 
 int main()

@@ -1,7 +1,7 @@
 #ifndef SALA_H  
 #define SALA_H
-
-
+#define ERR_NO_CAPACITY -2
+#define ERR_INVALID_SEAT -2
 // Definición de la estructura de datos
 typedef struct {
   int* asientos;

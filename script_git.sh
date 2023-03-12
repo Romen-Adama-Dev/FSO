@@ -3,7 +3,7 @@ git branch
 //Añadir los cambios
 git add .
 //Comentario
-git commit -m "Practica Development 60%, next step more tests"
+git commit -m "Desarrollo de la primera practica de FSO al 100%"
 //Cambios remotos y fusionarlos
 git pull origin main
 //Actualizacion del repositorio

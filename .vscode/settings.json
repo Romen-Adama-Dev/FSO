@@ -6,6 +6,8 @@
         "Añadir",
         "CUYAS",
         "fuerza",
+        "Igual",
         "nuevos"
-    ]
+    ],
+    "C_Cpp.errorSquiggles": "disabled"
 }
