@@ -12,7 +12,7 @@ This repository is created for uploading the projects and assignments that I wil
 
 To get started with this repository, simply clone the repository to your local machine:
 
-
+https://github.com/Romen-Adama-Dev/FSO.git
 
 Once the repository is cloned, you can start working on the assignments or projects by navigating to the respective folders in the terminal.
 
