@@ -153,7 +153,7 @@ void test_verificar_reservasCapacidad() {
   // Eliminar la sala creada
   elimina_sala();
 
-  printf("El test 'test_verificar_reservasCapacidad' pasó correctamente\n");
+  printf("********** batería de pruebas para Verificar Reservas/Capacidad: ********** hecho\n");
 }
 
 // Definimos las funciones de test

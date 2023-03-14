@@ -5,12 +5,6 @@
 #define ERR_NO_CAPACITY -2
 #define ERR_INVALID_SEAT -2
 
-// Data structure definition
-typedef struct {
-  int* asientos;
-  int capacidad;
-} Sala;
-
 // Void and int functions declaration
 void crea_sala(int capacidad);
 void elimina_sala();

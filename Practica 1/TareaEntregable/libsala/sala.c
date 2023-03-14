@@ -1,9 +1,15 @@
 // Author Romen-Adama-Dev
 // Date: 12-03-2023
 
-#include "sala.h" // Incluimos la definición de la estructura Sala y las constantes definidas en sala.h
+#include "sala.h" // Incluimos las constantes definidas en sala.h
 #include <stdlib.h> // Incluimos la biblioteca estándar de C para usar malloc() y free()
 #include <stdio.h> // Incluimos la biblioteca estándar de C para usar printf()
+
+// Data structure definition
+typedef struct {
+  int* asientos;
+  int capacidad;
+} Sala;
 
 static Sala* sala = NULL; // Declaramos una variable estática de tipo Sala* llamada sala e inicializamos su valor a NULL
 
@@ -24,18 +30,19 @@ void elimina_sala() {
 
 void estado_sala() {
   if (sala == NULL) { // Comprobamos si sala es NULL
-    printf("La sala no ha sido creada\n"); // Si es así, imprimimos un mensaje de error y retornamos
+    //printf("La sala no ha sido creada\n"); // Si es así, imprimimos un mensaje de error y retornamos
     return;
   }
-
+  /*
   printf("Resumen:\n");
   printf("  Aforo: %d\n", sala->capacidad); // Imprimimos la capacidad de la sala
   printf("  Asientos ocupados: %d\n", asientos_ocupados()); // Imprimimos el número de asientos ocupados llamando a la función asientos_ocupados()
   printf("  Asientos libres: %d\n", asientos_libres()); // Imprimimos el número de asientos libres llamando a la función asientos_libres()
   printf("\nEstado de los asientos:\n");
+  */
 
   for (int i = 0; i < sala->capacidad; i++) { // Recorremos todos los elementos del array asientos de la estructura Sala apuntada por sala
-    printf("Asiento %d: %d\n", i, estado_asiento(i)); // Imprimimos el estado del asiento i llamando a la función estado_asiento()
+    //printf("Asiento %d: %d\n", i, estado_asiento(i)); // Imprimimos el estado del asiento i llamando a la función estado_asiento()
   }
 }
 
@@ -119,7 +126,7 @@ int sentarse(int id) {
 
 void levantarse(int id) {
   if (sala == NULL) {
-    printf("La sala no ha sido creada\n");
+    //printf("La sala no ha sido creada\n");
     return;
   }
 
@@ -132,28 +139,28 @@ void levantarse(int id) {
   }
 
   if (asiento == -1) { // Comprobamos si el cliente con id id tiene un asiento asignado
-    printf("Lo siento, la persona con id %d no tiene un asiento asignado\n", id);
+    //printf("Lo siento, la persona con id %d no tiene un asiento asignado\n", id);
     return;
   }
 
   int result = libera_asiento(asiento); // Liberamos el asiento del cliente con id id
   if (result == -1) { // Comprobamos si se ha producido algún error
-    printf("Error: El asiento %d ya está libre\n", asiento);
+    //printf("Error: El asiento %d ya está libre\n", asiento);
     return;
   } else {
-    printf("El asiento %d ha sido liberado\n", asiento);
+    //printf("El asiento %d ha sido liberado\n", asiento);
   }
 }
 
 int reserva_multiple(int npersonas, int* lista_id) {
   if (sala == NULL) {
-    printf("La sala no ha sido creada\n");
+    //printf("La sala no ha sido creada\n");
     return -1;
   }
 
   int num_asientos_libres = asientos_libres(); // Guardamos el número de asientos libres
   if (num_asientos_libres < npersonas) { // Comprobamos si hay suficientes asientos libres para todas las personas
-    printf("No hay suficientes asientos libres para todas las personas\n"); 
+    //printf("No hay suficientes asientos libres para todas las personas\n"); 
     return -1;
   }
 
@@ -163,7 +170,7 @@ int reserva_multiple(int npersonas, int* lista_id) {
   for (int i = 0; i < npersonas; i++) { // Recorremos todas las personas
     int asiento = reserva_asiento(lista_id[i]); // Reservamos un asiento para la persona con id lista_id[i]
     if (asiento == -1) {
-      printf("Error al reservar asiento para la persona con id %d\n", lista_id[i]);
+      //printf("Error al reservar asiento para la persona con id %d\n", lista_id[i]);
 
       asientos_por_liberar = asientos_reservados; // Guardamos el número de asientos reservados para liberarlos después
       break;
