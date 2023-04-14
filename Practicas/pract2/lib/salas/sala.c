@@ -90,7 +90,6 @@ void elimina_sala() {
 
 int reserva_asiento(int id) {
     // Contstantes internas para los valores de retorno
-    const int ASIENTO_NO_DISPONIBLE = -1; // Ejemplo de valor de retorno para cuando el asiento no está disponible
     const int ASIENTO_SIN_RESERVAR = 0; // Ejemplo de valor de retorno para cuando el asiento está libre
 
     // Comprobar si hay una sala creada
