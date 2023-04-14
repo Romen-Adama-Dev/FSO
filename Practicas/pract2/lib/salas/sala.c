@@ -2,9 +2,15 @@
 // Created: 31-03-2023 11:00:00
 // Author:  Romen Adama Caetano Ramirez
 
+//Practica 1 Librerias
 #include <stdlib.h>
 #include <stdio.h>
 #include "../cabecera/sala.h"
+
+//Practica 2 Librerias
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
 
 typedef struct {
     int *asientos; // Puntero al array de asientos
@@ -29,6 +35,7 @@ typedef enum {
     ERR_ABRIR_ARCHIVO = -1,
     ERR_ESCRIBRIR_ARCHIVO = -1,
     ERR_SALA_NO_CREADA = -1,
+    ERR_LEER_ARCHIVO = -1,
 } sala_error;
 
 void crea_sala(int capacidad) {
@@ -180,55 +187,55 @@ int capacidad() {
 }
 
 int guarda_estado_sala(const char* ruta_fichero) {
-    FILE* archivo = fopen(ruta_fichero, "wb"); // abre el archivo para escritura en modo binario
-    if (archivo == NULL) {
+    int fd = open(ruta_fichero, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd == -1) {
         return ERR_ABRIR_ARCHIVO; // devuelve -1 en caso de error al abrir el archivo
     }
     // Escribe el estado actual de la sala en el archivo
-    int resultado = fwrite(&sala, sizeof(sala), 1, archivo);
-    fclose(archivo); // cierra el archivo
-    if (resultado != 1) {
+    int resultado = write(fd, &sala, sizeof(sala));
+    close(fd); // cierra el archivo
+    if (resultado != sizeof(sala)) {
         return ERR_ESCRIBRIR_ARCHIVO; // devuelve -1 si hubo un error al escribir en el archivo
     }
     return NO_ERROR; // todo ha ido bien
 }
 
 int recupera_estado_sala(const char* ruta_fichero) {
-    FILE* archivo = fopen(ruta_fichero, "rb"); // abre el archivo para lectura en modo binario
-    if (archivo == NULL) {
+    int fd = open(ruta_fichero, O_RDONLY);
+    if (fd == -1) {
         return ERR_ABRIR_ARCHIVO; // devuelve -1 en caso de error al abrir el archivo
     }
     // Lee el estado guardado de la sala desde el archivo
-    int resultado = fread(&sala, sizeof(sala), 1, archivo);
-    fclose(archivo); // cierra el archivo
-    if (resultado != 1) {
-        return ERR_ABRIR_ARCHIVO; // devuelve -1 si hubo un error al leer el archivo
+    int resultado = read(fd, &sala, sizeof(sala));
+    close(fd); // cierra el archivo
+    if (resultado != sizeof(sala)) {
+        return ERR_LEER_ARCHIVO; // devuelve -1 si hubo un error al leer el archivo
     }
     return NO_ERROR; // todo ha ido bien
 }
 
 int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos) {
-    FILE* fichero = fopen(ruta_fichero, "wb");
-    if (fichero == NULL) {
+    int fd = open(ruta_fichero, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd == -1) {
         return ERR_ABRIR_ARCHIVO; // error al abrir el fichero
     }
-    size_t num_escritos = fwrite(id_asientos, sizeof(int), num_asientos, fichero);
-    fclose(fichero);
-    if (num_escritos != num_asientos) {
+    size_t num_escritos = write(fd, id_asientos, sizeof(int) * num_asientos);
+    close(fd);
+    if (num_escritos != sizeof(int) * num_asientos) {
         return ERR_ESCRIBRIR_ARCHIVO; // error al escribir en el fichero
     }
     return NO_ERROR; // todo ha ido bien
 }
 
 int recupera_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos) {
-    FILE* fichero = fopen(ruta_fichero, "rb");
-    if (fichero == NULL) {
+    int fd = open(ruta_fichero, O_RDONLY);
+    if (fd == -1) {
         return ERR_ABRIR_ARCHIVO; // error al abrir el fichero
     }
-    size_t num_leidos = fread(id_asientos, sizeof(int), num_asientos, fichero);
-    fclose(fichero);
-    if (num_leidos != num_asientos) {
-        return ERR_ABRIR_ARCHIVO; // error al leer el fichero
+    size_t num_leidos = read(fd, id_asientos, sizeof(int) * num_asientos);
+    close(fd);
+    if (num_leidos != sizeof(int) * num_asientos) {
+        return ERR_LEER_ARCHIVO; // error al leer el fichero
     }
     return NO_ERROR; // todo ha ido bien
 }
