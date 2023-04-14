@@ -70,7 +70,6 @@ void crea_sala(int capacidad) {
     }
 }
 
-
 void elimina_sala() {
     // Comprobar que la sala exista
     if (sala == NULL) {

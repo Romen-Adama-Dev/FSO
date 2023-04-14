@@ -280,45 +280,6 @@ void test_ReservaImposible()
 	FIN_TEST("Reserva imposible");
 }
 
-void test_salas_cine()
-{
-    int mi_asiento;
-    const char* fichero = "test_salas_cine.dat";
-    #define CAPACIDAD_CUYAS 500
-    #define ID_1 1500
-
-    INICIO_TEST("Test de salas de cine");
-
-    // Test guarda_estado_sala
-    crea_sala(CAPACIDAD_CUYAS);
-    guarda_estado_sala(fichero) == 0;
-    elimina_sala();
-    capacidad() == 0;
-    asientos_ocupados() == 0;
-    asientos_libres() == 0;
-    recupera_estado_sala(fichero) == 0;
-    capacidad() == CAPACIDAD_CUYAS;
-
-    // Test guarda_estadoparcial_sala y recupera_estadoparcial_sala
-    int asientos_a_guardar[] = {1, 2, 3, 4};
-    size_t num_asientos = sizeof(asientos_a_guardar) / sizeof(int);
-    guarda_estadoparcial_sala(fichero, num_asientos, asientos_a_guardar) == 0;
-    libera_asiento(1);
-    libera_asiento(2);
-    libera_asiento(3);
-    libera_asiento(4);
-    recupera_estadoparcial_sala(fichero, num_asientos, asientos_a_guardar) == 0;
-    estado_asiento(1) == -1;
-    estado_asiento(2) == -1;
-    estado_asiento(3) == -1;
-    estado_asiento(4) == -1;
-
-    elimina_sala();
-    remove(fichero);
-
-    FIN_TEST("Test de salas de cine");
-}
-
 void ejecuta_tests ()
 {
 	test_ReservaBasica();
@@ -332,7 +293,6 @@ void ejecuta_tests ()
 	test_SentarseLevantarse();
 	test_ReservaMultiple();
 	test_ReservaImposible();
-	test_salas_cine();
 }
 
 int main()
