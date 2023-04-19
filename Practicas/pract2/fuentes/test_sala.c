@@ -198,7 +198,7 @@ int levantarse(int id) {
 
 int reserva_multiple(int npersonas, int* lista_id) {
     int num_asientos_libres = asientos_libres(); // Guardamos el número de asientos libres de la sala
-    if (num_asientos_libres < npersonas) { // Comprobamos si hay suficientes asientos libres para todas las personas
+    if (num_asientos_libres < npersonas) { // si hay suficientes asientos libres para todas las personas
         return -1;
     }
 
