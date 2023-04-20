@@ -5,6 +5,7 @@
 //Practica 1 Librerias
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "../cabecera/sala.h"
 
 //Practica 2 Librerias
@@ -186,34 +187,83 @@ int capacidad() {
     
 }
 
+// Funcion para guardar el estado de la sala en un fichero
 int guarda_estado_sala(const char* ruta_fichero) {
-    int fd = open(ruta_fichero, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    // Comprobar que la sala exista
+    int fd = open(ruta_fichero, O_RDWR | O_CREAT | O_TRUNC, 0666);
+    // Comprobar que se haya podido abrir el fichero
     if (fd == -1) {
-        return ERR_ABRIR_ARCHIVO; // devuelve -1 en caso de error al abrir el archivo
+        return ERR_ABRIR_ARCHIVO;
     }
-    // Escribe el estado actual de la sala en el archivo
-    int resultado = write(fd, &sala, sizeof(sala));
-    close(fd); // cierra el archivo
-    if (resultado != sizeof(sala)) {
-        return ERR_ESCRIBRIR_ARCHIVO; // devuelve -1 si hubo un error al escribir en el archivo
+    
+    // Puntero auxiliar para convertir los enteros a caracteres
+    char* puntero_caracteres_auxiliar = malloc(sizeof(int));
+    // Comprobar que se haya podido asignar memoria
+    sprintf(puntero_caracteres_auxiliar, "%d", sala->capacidad);
+    // Escribir la capacidad de la sala
+    write(fd, puntero_caracteres_auxiliar, strlen(puntero_caracteres_auxiliar));
+    write(fd, "\n", sizeof(char));
+    
+    // Recorrer el array de asientos y escribirlos en el fichero
+    for (int i = 0; i < sala->capacidad; i++) {
+        sprintf(puntero_caracteres_auxiliar, "%d", sala->asientos[i]);
+        write(fd, puntero_caracteres_auxiliar, strlen(puntero_caracteres_auxiliar));
+        write(fd, "\n", sizeof(char));
     }
-    return NO_ERROR; // todo ha ido bien
+    
+    // Liberar la memoria
+    free(puntero_caracteres_auxiliar);
+    // Cerrar el fichero
+    close(fd);
+    return NO_ERROR;
 }
 
+// Funcion para recuperar el estado de la sala desde un fichero
 int recupera_estado_sala(const char* ruta_fichero) {
+    // Comprobar que el fichero exista
     int fd = open(ruta_fichero, O_RDONLY);
     if (fd == -1) {
-        return ERR_ABRIR_ARCHIVO; // devuelve -1 en caso de error al abrir el archivo
+        return ERR_ABRIR_ARCHIVO;
     }
-    // Lee el estado guardado de la sala desde el archivo
-    int resultado = read(fd, &sala, sizeof(sala));
-    close(fd); // cierra el archivo
-    if (resultado != sizeof(sala)) {
-        return ERR_LEER_ARCHIVO; // devuelve -1 si hubo un error al leer el archivo
-    }
-    return NO_ERROR; // todo ha ido bien
-}
 
+    // Punteror palabra para leer la capacidad de la sala
+    char* palabra = malloc(sizeof(int)); // reservamos memoria para la palabra
+    int capacidad, pos = 0;
+    
+    // leemos la capacidad de la sala
+    while (0 < read(fd, palabra + pos, sizeof(char))) { // leemos carácter a carácter
+        if (*(palabra + pos) == '\0') break;
+        if (*(palabra + pos) == '\n') break; // si encontramos un espacio, paramos la lectura
+        pos++;
+    }
+    
+    capacidad = atoi(palabra); // convertimos la palabra a un entero
+    crea_sala(capacidad); // creamos la sala
+    //free(palabra); // liberamos la memoria reservada
+
+    // leemos los asientos de la sala
+    
+    //palabra = malloc(sizeof(int)*capacidad);
+    for (int i = 0; i < capacidad; i++) {
+        palabra = realloc(palabra, sizeof(int));
+        pos = 0;
+        while (0 < read(fd, palabra + pos, sizeof(char))) {
+            if (*(palabra + pos) == '\0') break;
+            if (*(palabra + pos) == '\n') break;
+            pos++;
+        }
+        
+        sala->asientos[i] = atoi(palabra);
+    }
+    free(palabra); // liberamos la memoria reservada
+
+    close(fd); // cerramos el archivo
+    return NO_ERROR;
+    
+    }
+
+
+//Falta mejorar en funcion a lo anterior
 int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos) {
     int fd = open(ruta_fichero, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (fd == -1) {
