@@ -1,6 +1,13 @@
+// File: sala.c
+// Created: 31-03-2023 11:00:00
+// Author:  Romen Adama Caetano Ramirez
+
+// Practica 1 Librerias
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+
+//Practica 2 Librerias
 #include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -259,7 +266,7 @@ int main(int argc, char *argv[])
         printf("\n");
         
     }
-    
+    // Prints de ayuda por si no se sabe usar el programa mediante CLI
     else
     {
         printf("Modo de uso:\n");
@@ -276,6 +283,10 @@ int main(int argc, char *argv[])
         printf("%s anula -f <ruta_fichero> <id_persona>\n", argv[0]);
         printf("  -f <ruta_fichero>: indica el fichero donde se guardará o se recuperará el estado de la sala.\n");
         printf("  <id_persona>: identificador de la persona cuya reserva se anulará.\n");
+        printf("\n");
+        printf("%s estado -f <ruta_fichero> \n", argv[0]);
+        printf("  -f <ruta_fichero>: indica el fichero donde se guardará o se recuperará el estado de la sala.\n");
+        printf("  Imprimira lo almacenado en el archivo \n");
         printf("\n");
         return 1;
     }
