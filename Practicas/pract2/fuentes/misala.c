@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
         printf("\n");
         printf("%s estado -f <ruta_fichero> \n", argv[0]);
         printf("  -f <ruta_fichero>: indica el fichero donde se guardará o se recuperará el estado de la sala.\n");
-        printf("  <cade de texto con saltos de linea> Imprimir lo almacenado en el archivo\n");
+        printf("  <cadena_texto>:    imprimir lo almacenado en el archivo\n");
         printf("\n");
         return 1;
     }
