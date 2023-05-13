@@ -142,12 +142,14 @@ int main(int argc, char *argv[])
 
         // Opcion anula
         case 'a':
-            num_personas = argc - optind + 1;
-            personas = realloc(personas,sizeof(int) * num_personas);
-            for (size_t i = 0; i < num_personas; i++)
+            int aux = optind - 1;
+            while ((argc > aux) && (*argv[aux] != '-'))
             {
-                *(personas + i) = atoi(argv[optind + i]);
+                personas = realloc(personas,sizeof(int) * (aux + 1));
+                *(personas + (aux - optind + 1)) = atoi(argv[aux]);
+                aux++;
             }
+            num_asientos = aux - optind + 1;
             break;
 
         // Opcion estado
@@ -241,11 +243,6 @@ int main(int argc, char *argv[])
     {
         int result = 0;
 
-        if (num_asientos <= 0)
-        {
-            fprintf(stderr, "El número de asientos debe ser un entero positivo mayor que cero.\n");
-            return ERROR;
-        }
         if (access(ruta_fichero, F_OK) != 0)
         {
             fprintf(stderr, "La ruta especificada para el fichero no es válida o no se tienen los permisos adecuados.\n");
@@ -258,9 +255,10 @@ int main(int argc, char *argv[])
             return ERROR;
         }
         
-        for (i = 0; i < num_personas; i++)
+        cap = capacidad();
+        for (i = 0; i < num_asientos; i++)
         {
-            if (personas[i] > 0 && personas[i] <= cap) // Verificamos que el id del asiento sea válido
+            if ((personas[i] >= 0) && (personas[i] < cap)) // Verificamos que el id del asiento sea válido
             {
                 result = libera_asiento(personas[i]);
                 if (result == -1)
