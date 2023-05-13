@@ -1,5 +1,5 @@
 // File: sala.c
-// Created: 31-03-2023 11:00:00
+// Created: 15-04-2023 11:00:00
 // Author:  Romen Adama Caetano Ramirez
 
 // Practica 1 Librerias
@@ -235,6 +235,56 @@ int main(int argc, char *argv[])
     return 0;
 
     }
+
+    // Modo anula
+    else if (modo_anula && modo_fichero)
+    {
+        int result = 0;
+
+        if (num_asientos <= 0)
+        {
+            fprintf(stderr, "El número de asientos debe ser un entero positivo mayor que cero.\n");
+            return ERROR;
+        }
+        if (access(ruta_fichero, F_OK) != 0)
+        {
+            fprintf(stderr, "La ruta especificada para el fichero no es válida o no se tienen los permisos adecuados.\n");
+            return ERROR;
+        }
+        result = recupera_estado_sala(ruta_fichero);
+        if (result == -1)
+        {
+            fprintf(stderr, "Ha ocurrido un error al recuperar el estado de la sala.\n");
+            return ERROR;
+        }
+        
+        for (i = 0; i < num_personas; i++)
+        {
+            if (personas[i] > 0 && personas[i] <= cap) // Verificamos que el id del asiento sea válido
+            {
+                result = libera_asiento(personas[i]);
+                if (result == -1)
+                {   
+                    fprintf(stderr, "Ha ocurrido un error al liberar el asiento con identificador %d.\n", personas[i]);
+                    return ERROR;
+                }
+            }
+            else
+            {
+                fprintf(stderr, "El identificador de asiento %d no es válido. Ignorando.\n", personas[i]);
+            }
+        }
+        
+        result = guarda_estado_sala(ruta_fichero);
+        if (result == -1)
+        {
+            fprintf(stderr, "Ha ocurrido un error al guardar el estado de la sala después de realizar la anulación.\n");
+            return ERROR;
+        }
+        
+        return 0;
+    }
+
 
     // Modo estado
     else if (modo_estado && modo_fichero)

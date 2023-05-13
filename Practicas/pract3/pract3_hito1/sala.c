@@ -1,18 +1,19 @@
 // File: sala.c
-// Created: 31-03-2023 11:00:00
+// Created: 02-05-2023 11:00:00
 // Author:  Romen Adama Caetano Ramirez
 
 //Practica 1 Librerias
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../cabecera/sala.h"
+#include "sala.h"
 
 //Practica 2 Librerias
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
 
+// Estructura para la sala
 typedef struct {
     int *asientos; // Puntero al array de asientos
     int capacidad; // Capacidad de la sala
@@ -22,6 +23,7 @@ typedef struct {
 
 static Sala *sala = NULL; // Puntero a la sala global
 
+// Constantes para los valores de retorno de error o de éxito
 typedef enum {
     NO_ERROR = 0,
     ASIENTO_SIN_RESERVAR = 0,
@@ -40,6 +42,7 @@ typedef enum {
     ERR_NUM_ASIENTOS = -1,
 } sala_error;
 
+// Función principal para crear la sala
 void crea_sala(int capacidad) {
     // Comprobar si ya existe una sala creada
     if (sala != NULL) {
@@ -79,6 +82,7 @@ void crea_sala(int capacidad) {
     }
 }
 
+// Función para eliminar la sala
 void elimina_sala() {
     // Comprobar que la sala exista
     if (sala == NULL) {
@@ -96,7 +100,7 @@ void elimina_sala() {
     sala = NULL;
 }
 
-
+// Función para reservar un asiento
 int reserva_asiento(int id) {
     // Contstantes internas para los valores de retorno
     const int ASIENTO_SIN_RESERVAR = 0; // Ejemplo de valor de retorno para cuando el asiento está libre
@@ -130,6 +134,7 @@ int reserva_asiento(int id) {
 return ERR_SIN_ASIENTOS_LIBRES;
 }
 
+// Función para liberar un asiento
 int libera_asiento(int asiento) {
     // Comprobar que la sala exista
     if (sala == NULL) {
@@ -165,6 +170,7 @@ int estado_asiento(int asiento) {
         return sala->asientos[asiento-1]; // asiento ocupado
     }
 }
+
 // Devuelve el número de asientos libres
 int asientos_libres() {
     if (sala == NULL) {
@@ -172,6 +178,7 @@ int asientos_libres() {
     }
     return sala->libres;
 }
+
 // Devuelve el número de asientos ocupados
 int asientos_ocupados() {
     if (sala == NULL) {
@@ -179,6 +186,7 @@ int asientos_ocupados() {
     }
     return sala->ocupados;
 }
+
 // Devuelve la capacidad de la sala
 int capacidad() {
     if (sala == NULL) {
@@ -262,7 +270,6 @@ int recupera_estado_sala(const char* ruta_fichero) {
     return NO_ERROR;
     
 }
-
 
 // Funcion para guardar el estado parcial de la sala en un fichero
 int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos) {
