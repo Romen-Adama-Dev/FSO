@@ -4,7 +4,7 @@
 git add .
 
 # Realiza un commit con los cambios
-git commit -m "Actualización automática del repositorio, practica 2"
+git commit -m "Actualización automática del repositorio, practica 3"
 
 # Sube los cambios al repositorio remoto
 git push origin main
