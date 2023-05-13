@@ -263,7 +263,6 @@ int recupera_estado_sala(const char* ruta_fichero) {
     
 }
 
-
 // Funcion para guardar el estado parcial de la sala en un fichero
 int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos) {
     int fd = open(ruta_fichero, O_WRONLY | O_CREAT | O_TRUNC, 0666);
