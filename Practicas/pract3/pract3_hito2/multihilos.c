@@ -1,3 +1,7 @@
+// File: multihilos.c
+// Created: 02-05-2023 11:00:00
+// Author:  Romen Adama Caetano Ramirez
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -61,6 +65,7 @@ void realizar_liberaciones(int id) {
 
 // Función auxiliar para envolver realizar_reservas
 void* reservas_wrapper(void* arg) {
+    // Convertir el argumento a un entero
     int id = (intptr_t)arg;
     realizar_liberaciones(id);
     return NULL;
@@ -93,12 +98,16 @@ void* visualizar_estado(void* arg) {
     }
 }
 
+// Función principal
 int main(int argc, char* argv[]) {
+    // Comprobar el número de argumentos
     if (argc != 2) {
         printf("Uso: %s n\n", argv[0]);
         printf("Donde n es el número de hilos\n");
         return 1;
     }
+
+    // Convertir el argumento a un entero
     int num_hilos = atoi(argv[1]);
     pthread_t hilos[num_hilos];
     struct VisualizacionArgs visualizacion_args;

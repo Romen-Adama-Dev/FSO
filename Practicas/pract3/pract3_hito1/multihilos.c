@@ -1,3 +1,7 @@
+// File: multihilos.c
+// Created: 02-05-2023 11:00:00
+// Author:  Romen Adama Caetano Ramirez
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -14,6 +18,7 @@ struct VisualizacionArgs {
 
 // Función para realizar una reserva de asiento
 void realizar_reservas(int id) {
+    // Realizar varias reservas de asiento
     for (int i = 0; i < NUM_RESERVAS; i++) {
         pausa_aleatoria(0.05); // Retardo de tiempo aleatorio
         int resultado = reserva_asiento(id);
@@ -28,6 +33,7 @@ void realizar_reservas(int id) {
 
 // Función auxiliar para envolver realizar_reservas
 void* reservas_wrapper(void* arg) {
+    // Convertir el argumento a un entero
     int id = (intptr_t)arg;
     realizar_reservas(id);
     return NULL;
@@ -35,6 +41,7 @@ void* reservas_wrapper(void* arg) {
 
 // Función para realizar la liberación de asientos
 void realizar_liberaciones(int id) {
+    // Realizar varias liberaciones de asiento
     for (int i = 0; i < NUM_RESERVAS; i++) {
         pausa_aleatoria(0.05); // Retardo de tiempo aleatorio
         int resultado = libera_asiento(id);
@@ -49,12 +56,15 @@ void realizar_liberaciones(int id) {
 
 // Función para mostrar el estado de la sala cada cierto intervalo de tiempo
 void* visualizar_estado(void* arg) {
+    // Convertir el argumento a un puntero a una estructura VisualizacionArgs
     struct VisualizacionArgs* args = (struct VisualizacionArgs*)arg;
-        int intervalo = args->intervalo;
+    int intervalo = args->intervalo; // Intervalo de visualización en milisegundos
 
     while (1) {
+        // Mostrar el estado de la sala
         usleep(intervalo * 1000);
         printf("Estado de la sala:\n");
+        // Mostrar el estado de cada asiento
         for (int i = 1; i <= capacidad(); i++) {
             int estado = estado_asiento(i);
             if (estado == 0) {
@@ -67,6 +77,7 @@ void* visualizar_estado(void* arg) {
     }
 }
 
+// Función principal
 int main(int argc, char* argv[]) {
     if (argc != 2) {
         printf("Uso: %s n\n", argv[0]);
@@ -74,6 +85,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    // Crear n hilos
     int num_hilos = atoi(argv[1]);
     pthread_t hilos[num_hilos];
     struct VisualizacionArgs visualizacion_args;
