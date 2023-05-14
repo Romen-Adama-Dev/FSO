@@ -57,8 +57,6 @@ Cada hito requiere entregar lo siguiente:
 - Test con su correspondiente traza, como capturas de pantalla, para demostrar los resultados observados y evidenciar las inconsistencias antes de aplicar las mejoras y después de aplicarlas.
 - Comentarios explicando los resultados observados y resaltando que después de las modificaciones pertinentes, los resultados son adecuados y las inconsistencias anteriores han sido solucionadas.
 
-**Nota:** Asegúrate de proporcionar la información y capturas de pantalla necesarias para respaldar tus comentarios sobre los resultados observados antes y después de cada hito.
-
 ### Requisitos del Sistema
 
 - Compilador de C compatible con las librerías pthread.
