@@ -98,7 +98,7 @@ void realizar_liberaciones(int id) {
 void* reservas_wrapper(void* arg) {
     // El argumento es el id del hilo
     int id = (intptr_t)arg;
-    realizar_liberaciones(id);
+    realizar_reservas(id);
     return NULL;
 }
 
