@@ -24,6 +24,7 @@ static Sala *sala = NULL; // Puntero a la sala global
 
 typedef enum {
     NO_ERROR = 0,
+    ERROR = -1,
     ASIENTO_SIN_RESERVAR = 0,
     ERR_CAPACIDAD_INVALIDA = -1,
     ERR_ID_CLIENTE_YA_EXISTE = -1,
@@ -263,6 +264,7 @@ int recupera_estado_sala(const char* ruta_fichero) {
     
 }
 
+/*
 // Funcion para guardar el estado parcial de la sala en un fichero
 int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos) {
     int fd = open(ruta_fichero, O_WRONLY | O_CREAT | O_TRUNC, 0666);
@@ -272,14 +274,17 @@ int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int
     
     // Escribir el número de asientos en el fichero
     ssize_t num_escritos = write(fd, &num_asientos, sizeof(size_t));
+    comprueba_error();
     if (num_escritos != sizeof(size_t)) {
         close(fd);
+        comprueba_error();
         return ERR_ESCRIBRIR_ARCHIVO; // error al escribir en el fichero
     }
     
     // Escribir los identificadores de los asientos en el fichero
     num_escritos = write(fd, id_asientos, sizeof(int) * num_asientos);
     close(fd);
+    comprueba_error();
     if (num_escritos != sizeof(int) * num_asientos) {
         return ERR_ESCRIBRIR_ARCHIVO; // error al escribir en el fichero
     }
@@ -297,21 +302,25 @@ int recupera_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, i
     // Leer el número de asientos desde el fichero
     size_t num_leidos;
     ssize_t lectura = read(fd, &num_leidos, sizeof(size_t));
+    comprueba_error();
     if (lectura != sizeof(size_t)) {
         close(fd);
+        comprueba_error();
         return ERR_LEER_ARCHIVO; // error al leer el fichero
     }
     
     // Verificar que el número de asientos coincida
     if (num_leidos != num_asientos) {
         close(fd);
+        comprueba_error();
         return ERR_NUM_ASIENTOS; // error: el número de asientos no coincide
     }
     
     // Leer los identificadores de los asientos desde el fichero
     ssize_t num_leidos_total = 0;
     while (num_leidos_total < sizeof(int) * num_asientos) {
-        ssize_t lectura_actual = read(fd, id_asientos + num_leidos_total, sizeof(int) * num_asientos - num_leidos_total);
+        ssize_t lectura_actual = read(fd, id_asientos + num_leidos_total / sizeof(int), sizeof(int) * num_asientos - num_leidos_total);
+        comprueba_error();
         if (lectura_actual <= 0) {
             break; // se alcanzó el final del archivo o se produjo un error de lectura
         }
@@ -319,6 +328,7 @@ int recupera_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, i
     }
 
     close(fd); // cerrar el archivo
+    comprueba_error();
 
     if (num_leidos_total != sizeof(int) * num_asientos) {
         return ERR_LEER_ARCHIVO; // error al leer el fichero
@@ -326,4 +336,5 @@ int recupera_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, i
     
     return NO_ERROR; // todo ha ido bien
 }
+*/
 

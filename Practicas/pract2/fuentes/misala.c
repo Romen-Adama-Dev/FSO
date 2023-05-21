@@ -18,6 +18,7 @@
 #define MAX_RUTA_FICHERO 32
 // Constante para definir el error
 #define ERROR -1
+#define OK 0
 
 // Opciones válidas
 enum OpcionValida {
@@ -26,6 +27,7 @@ enum OpcionValida {
     OP_SOBREESCRIBIR = 'o',
     OP_RESERVA = 'r',
     OP_ANULA = 'a',
+    OP_ESTADO_PARCIAL = 'e'
 };
 
 // Funcion de error
@@ -37,6 +39,10 @@ int comprueba_error()
         fflush(stderr);
         errno = 0;
         return ERROR;
+    }else
+    {
+        fprintf(stderr, "No hubo error \n");
+        return OK;
     }
 
     return 0;
@@ -70,6 +76,8 @@ int main(int argc, char *argv[])
     int modo_anula = 0;
     // Flag estado
     int modo_estado = 0;
+    // Flag estado parcial
+    int modo_estado_parcial = 0;
     // Capacidad de la sala
     int cap = 0;
     // Ruta del fichero
@@ -98,6 +106,10 @@ int main(int argc, char *argv[])
     else if (strcmp(argv[1],"estado") == 0)
     {
         modo_estado = 1;
+    }
+    else if (strcmp(argv[1],"estado_parcial") == 0)
+    {
+        modo_estado_parcial = 1;
     }
 
     // Comprobamos que se ha introducido un fichero, parametro obligatorio y otras opciones
@@ -157,6 +169,11 @@ int main(int argc, char *argv[])
             printf("Falta argumento para la opción '%c'\n", optopt);
             return ERROR;
 
+        // Opcion estado parcial
+        case 'e':
+            modo_estado_parcial = 1;
+            break;
+
         // Opcion no valida
         case '?':
             printf("Opción inválida '%c'\n", optopt);
@@ -189,6 +206,8 @@ int main(int argc, char *argv[])
                 return ERROR;
             }
         }
+        printf("%s sala creada con éxito.\n", (comprueba_error() == OK) ? "La" : "No se pudo crear la");
+
     }
 
     // Modo reserva
@@ -234,8 +253,8 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Ha ocurrido un error al guardar el estado de la sala después de realizar la reserva.\n");
             return ERROR;
         }
+        printf("%s reserva con éxito.\n", (comprueba_error() == OK) ? "Se pudo crear la" : "No se pudo crear la");
     return 0;
-
     }
 
     // Modo anula
@@ -274,15 +293,14 @@ int main(int argc, char *argv[])
         }
         
         result = guarda_estado_sala(ruta_fichero);
+        printf("%s anulacion con éxito.\n", (comprueba_error() == OK) ? "Se pudo hacer la" : "No se pudo hacer la");
         if (result == -1)
         {
             fprintf(stderr, "Ha ocurrido un error al guardar el estado de la sala después de realizar la anulación.\n");
             return ERROR;
-        }
-        
+        } 
         return 0;
     }
-
 
     // Modo estado
     else if (modo_estado && modo_fichero)
@@ -304,6 +322,7 @@ int main(int argc, char *argv[])
         }
 
         recupera_estado_sala(ruta_fichero);
+        printf("%s estado de la sala.\n", (comprueba_error() == OK) ? "Se pudo comprobar el" : "No se pudo comprobar el");
 
         printf("Estado de la sala:\n");
         for (int i = 0; i < capacidad(); i++)
@@ -312,8 +331,46 @@ int main(int argc, char *argv[])
             printf("%d", estado_asiento(i));
         }
         printf("\n");
-        
     }
+    // Modo estado parcial
+    /*
+    else if (modo_estado_parcial && modo_fichero)
+    {
+        int result = 0;
+
+        if (access(ruta_fichero, F_OK) != 0)
+        {
+            fprintf(stderr, "La ruta especificada para el fichero no es válida o no se tienen los permisos adecuados.\n");
+            return ERROR;
+        }
+
+        // Guardar el estado parcial de la sala en un fichero
+        result = guarda_estadoparcial_sala(ruta_fichero, capacidad(), estado_asiento);
+
+        if (result == -1)
+        {
+            fprintf(stderr, "Ha ocurrido un error al guardar el estado parcial de la sala.\n");
+            return ERROR;
+        }
+
+        // Recuperar el estado parcial de la sala desde un fichero
+        result = recupera_estadoparcial_sala(ruta_fichero, capacidad(), estado_asiento);
+
+        if (result == -1)
+        {
+            fprintf(stderr, "Ha ocurrido un error al recuperar el estado parcial de la sala.\n");
+            return ERROR;
+        }
+
+        printf("Estado de la sala:\n");
+        for (int i = 0; i < capacidad(); i++)
+        {
+            printf("\n");
+            printf("%d", estado_asiento(i));
+        }
+        printf("\n");
+    }
+    */
     // Prints de ayuda por si no se sabe usar el programa mediante CLI
     else
     {
@@ -321,23 +378,24 @@ int main(int argc, char *argv[])
         printf("%s crea -c <capacidad> -f <ruta_fichero> [-o]\n", argv[0]);
         printf("  -c <capacidad>: crea una sala con la capacidad indicada.\n");
         printf("  -f <ruta_fichero>: indica el fichero donde se guardará o se recuperará el estado de la sala.\n");
-        printf("  -o: sobreescribe el fichero especificado en '-f', si ya existe.\n");
+        printf("  -o: sobrescribe el fichero especificado en '-f', si ya existe.\n");
         printf("\n");
         printf("%s reserva -f <ruta_fichero> -n <numero_de_asientos> <id_persona1> <id_persona2> ... <id_personaN>\n", argv[0]);
         printf("  -f <ruta_fichero>: indica el fichero donde se guardará o se recuperará el estado de la sala.\n");
         printf("  -n <numero_de_asientos>: número de asientos que se reservarán.\n");
         printf("  <id_persona1> <id_persona2> ... <id_personaN>: identificadores de las personas que reservarán los asientos. El número de identificadores debe ser igual al número de asientos a reservar.\n");
         printf("\n");
-        printf("%s anula -f <ruta_fichero> <id_persona>\n", argv[0]);
+        printf("%s anula -a <numero_del_asiento> -f <ruta_fichero>\n", argv[0]);
         printf("  -f <ruta_fichero>: indica el fichero donde se guardará o se recuperará el estado de la sala.\n");
         printf("  <id_persona>: identificador de la persona cuya reserva se anulará.\n");
         printf("\n");
-        printf("%s estado -f <ruta_fichero> \n", argv[0]);
+        printf("%s estado -f <ruta_fichero>\n", argv[0]);
         printf("  -f <ruta_fichero>: indica el fichero donde se guardará o se recuperará el estado de la sala.\n");
-        printf("  <cadena_texto>:    imprimir lo almacenado en el archivo\n");
         printf("\n");
-        return 1;
+        return OK;
     }
+
     free(personas);
+    return 0;
 }
     
