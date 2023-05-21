@@ -94,8 +94,6 @@ int main(int argc, char *argv[])
     // Array de personasS
     int i = 0;
     int* personas = malloc(sizeof(int));
-    // Declaración de la variable estado_asiento_local
-    static int* estado_asiento_local = NULL;
 
     // Comprobamos que se ha introducido un modo de los solicitados
     if(strcmp(argv[1],"crea") == 0)
@@ -344,38 +342,51 @@ int main(int argc, char *argv[])
     else if (modo_estado_parcial && modo_fichero)
     {
         int result = 0;
+        int* estado_asiento = (int*)malloc(sizeof(int) * capacidad()); // Variable local para almacenar el estado parcial
+
+        if (estado_asiento == NULL)
+        {
+            fprintf(stderr, "Error al asignar memoria para el estado parcial de la sala.\n");
+            return ERROR;
+        }
 
         if (access(ruta_fichero, F_OK) != 0)
         {
             fprintf(stderr, "La ruta especificada para el fichero no es válida o no se tienen los permisos adecuados.\n");
+            free(estado_asiento);
             return ERROR;
         }
 
         // Guardar el estado parcial de la sala en un fichero
-        result = guarda_estadoparcial_sala(ruta_fichero, capacidad(), estado_asiento_local); // Cambio realizado aquí
-        if (result != OK)
+        result = guarda_estadoparcial_sala(ruta_fichero, capacidad(), estado_asiento);
+        if (result != 0)
         {
             fprintf(stderr, "Ha ocurrido un error al guardar el estado parcial de la sala.\n");
+            free(estado_asiento);
             return ERROR;
         }
 
         // Recuperar el estado parcial de la sala desde un fichero
-        result = recupera_estadoparcial_sala(ruta_fichero, capacidad(), estado_asiento_local); // Cambio realizado aquí
-        if (result != OK)
+        result = recupera_estadoparcial_sala(ruta_fichero, capacidad(), estado_asiento);
+        if (result != 0)
         {
             fprintf(stderr, "Ha ocurrido un error al recuperar el estado parcial de la sala.\n");
+            free(estado_asiento);
             return ERROR;
         }
 
+        //Revisar
         printf("Estado de la sala:\n");
         for (int i = 0; i < capacidad(); i++)
         {
             printf("\n");
-            printf("%d", estado_asiento_local[i]);  // Actualización de la llamada a la variable
+            printf("%d", estado_asiento[i]);
         }
         printf("\n");
-    }
 
+        free(estado_asiento);
+    }
+    
 
     // Prints de ayuda por si no se sabe usar el programa mediante CLI
     else

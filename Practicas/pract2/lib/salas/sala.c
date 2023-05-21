@@ -264,17 +264,12 @@ int recupera_estado_sala(const char* ruta_fichero) {
     
 }
 
-static int* estado_asiento_local = NULL;
-
 // Función para guardar el estado parcial de la sala en un fichero
 int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos)
 {
-    estado_asiento_local = id_asientos; // Asigna la dirección del array de id_asientos a la variable estática
-
     int fd = open(ruta_fichero, O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (fd == -1)
     {
-        estado_asiento_local = NULL; // Restablece la variable estática en caso de error
         return ERR_ABRIR_ARCHIVO; // error al abrir el fichero
     }
 
@@ -283,14 +278,12 @@ int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int
     if (num_escritos != sizeof(size_t))
     {
         close(fd);
-        estado_asiento_local = NULL; // Restablece la variable estática en caso de error
         return ERR_ESCRIBRIR_ARCHIVO; // error al escribir en el fichero
     }
 
     // Escribir los identificadores de los asientos en el fichero
     num_escritos = write(fd, id_asientos, sizeof(int) * num_asientos);
     close(fd);
-    estado_asiento_local = NULL; // Restablece la variable estática después de guardar el estado
 
     if (num_escritos != sizeof(int) * num_asientos)
     {
@@ -303,12 +296,9 @@ int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int
 // Función para recuperar el estado parcial de la sala desde un fichero
 int recupera_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos)
 {
-    estado_asiento_local = id_asientos; // Asigna la dirección del array de id_asientos a la variable estática
-
     int fd = open(ruta_fichero, O_RDONLY);
     if (fd == -1)
     {
-        estado_asiento_local = NULL; // Restablece la variable estática en caso de error
         return ERR_ABRIR_ARCHIVO; // error al abrir el fichero
     }
 
@@ -318,7 +308,6 @@ int recupera_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, i
     if (lectura != sizeof(size_t))
     {
         close(fd);
-        estado_asiento_local = NULL; // Restablece la variable estática en caso de error
         return ERR_LEER_ARCHIVO; // error al leer el fichero
     }
 
@@ -326,7 +315,6 @@ int recupera_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, i
     if (num_leidos != num_asientos)
     {
         close(fd);
-        estado_asiento_local = NULL; // Restablece la variable estática en caso de error
         return ERR_NUM_ASIENTOS; // error: el número de asientos no coincide
     }
 
@@ -343,7 +331,6 @@ int recupera_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, i
     }
 
     close(fd); // cerrar el archivo
-    estado_asiento_local = NULL; // Restablece la variable estática después de recuperar el estado
 
     if (num_leidos_total != sizeof(int) * num_asientos)
     {
