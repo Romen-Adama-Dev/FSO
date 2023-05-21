@@ -264,77 +264,91 @@ int recupera_estado_sala(const char* ruta_fichero) {
     
 }
 
-/*
-// Funcion para guardar el estado parcial de la sala en un fichero
-int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos) {
+static int* estado_asiento_local = NULL;
+
+// Función para guardar el estado parcial de la sala en un fichero
+int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos)
+{
+    estado_asiento_local = id_asientos; // Asigna la dirección del array de id_asientos a la variable estática
+
     int fd = open(ruta_fichero, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-    if (fd == -1) {
+    if (fd == -1)
+    {
+        estado_asiento_local = NULL; // Restablece la variable estática en caso de error
         return ERR_ABRIR_ARCHIVO; // error al abrir el fichero
     }
-    
+
     // Escribir el número de asientos en el fichero
     ssize_t num_escritos = write(fd, &num_asientos, sizeof(size_t));
-    comprueba_error();
-    if (num_escritos != sizeof(size_t)) {
+    if (num_escritos != sizeof(size_t))
+    {
         close(fd);
-        comprueba_error();
+        estado_asiento_local = NULL; // Restablece la variable estática en caso de error
         return ERR_ESCRIBRIR_ARCHIVO; // error al escribir en el fichero
     }
-    
+
     // Escribir los identificadores de los asientos en el fichero
     num_escritos = write(fd, id_asientos, sizeof(int) * num_asientos);
     close(fd);
-    comprueba_error();
-    if (num_escritos != sizeof(int) * num_asientos) {
+    estado_asiento_local = NULL; // Restablece la variable estática después de guardar el estado
+
+    if (num_escritos != sizeof(int) * num_asientos)
+    {
         return ERR_ESCRIBRIR_ARCHIVO; // error al escribir en el fichero
     }
-    
+
     return NO_ERROR; // todo ha ido bien
 }
 
-// Funcion para recuperar el estado parcial de la sala desde un fichero
-int recupera_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos) {
+// Función para recuperar el estado parcial de la sala desde un fichero
+int recupera_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos)
+{
+    estado_asiento_local = id_asientos; // Asigna la dirección del array de id_asientos a la variable estática
+
     int fd = open(ruta_fichero, O_RDONLY);
-    if (fd == -1) {
+    if (fd == -1)
+    {
+        estado_asiento_local = NULL; // Restablece la variable estática en caso de error
         return ERR_ABRIR_ARCHIVO; // error al abrir el fichero
     }
 
     // Leer el número de asientos desde el fichero
     size_t num_leidos;
     ssize_t lectura = read(fd, &num_leidos, sizeof(size_t));
-    comprueba_error();
-    if (lectura != sizeof(size_t)) {
+    if (lectura != sizeof(size_t))
+    {
         close(fd);
-        comprueba_error();
+        estado_asiento_local = NULL; // Restablece la variable estática en caso de error
         return ERR_LEER_ARCHIVO; // error al leer el fichero
     }
-    
+
     // Verificar que el número de asientos coincida
-    if (num_leidos != num_asientos) {
+    if (num_leidos != num_asientos)
+    {
         close(fd);
-        comprueba_error();
+        estado_asiento_local = NULL; // Restablece la variable estática en caso de error
         return ERR_NUM_ASIENTOS; // error: el número de asientos no coincide
     }
-    
+
     // Leer los identificadores de los asientos desde el fichero
     ssize_t num_leidos_total = 0;
-    while (num_leidos_total < sizeof(int) * num_asientos) {
+    while (num_leidos_total < sizeof(int) * num_asientos)
+    {
         ssize_t lectura_actual = read(fd, id_asientos + num_leidos_total / sizeof(int), sizeof(int) * num_asientos - num_leidos_total);
-        comprueba_error();
-        if (lectura_actual <= 0) {
+        if (lectura_actual <= 0)
+        {
             break; // se alcanzó el final del archivo o se produjo un error de lectura
         }
         num_leidos_total += lectura_actual;
     }
 
     close(fd); // cerrar el archivo
-    comprueba_error();
+    estado_asiento_local = NULL; // Restablece la variable estática después de recuperar el estado
 
-    if (num_leidos_total != sizeof(int) * num_asientos) {
+    if (num_leidos_total != sizeof(int) * num_asientos)
+    {
         return ERR_LEER_ARCHIVO; // error al leer el fichero
     }
-    
+
     return NO_ERROR; // todo ha ido bien
 }
-*/
-

@@ -33,13 +33,16 @@ enum OpcionValida {
 // Funcion de error
 int comprueba_error()
 {
+    // Comprobamos si ha habido un error
     if (errno != 0)
     {
         fprintf(stderr, "Hubo un error con código %d : %s", errno, strerror(errno));
         fflush(stderr);
         errno = 0;
         return ERROR;
-    }else
+    }
+    // Si no ha habido error
+    else
     {
         fprintf(stderr, "No hubo error \n");
         return OK;
@@ -56,6 +59,8 @@ void imprime_ayuda()
     printf("-f: indica el fichero donde se guardará o se recuperará el estado de la sala.\n");
     printf("-o: sobreescribe el fichero especificado en '-f', si ya existe.\n");
     printf("-r: realiza la reserva de un número de asientos para las personas cuyos identificadores se especifican en la orden.\n");
+    printf("-a: anula la reserva de un asiento para la persona cuyo asiento se especifica en la orden.\n");
+    printf("-e: muestra el estado parcial de la sala.\n");
 }
 
 // Funcion que crea una sala con la capacidad indicada, modifica mediante una reserva y guarda el estado en un fichero
@@ -89,6 +94,8 @@ int main(int argc, char *argv[])
     // Array de personasS
     int i = 0;
     int* personas = malloc(sizeof(int));
+    // Declaración de la variable estado_asiento_local
+    static int* estado_asiento_local = NULL;
 
     // Comprobamos que se ha introducido un modo de los solicitados
     if(strcmp(argv[1],"crea") == 0)
@@ -332,8 +339,8 @@ int main(int argc, char *argv[])
         }
         printf("\n");
     }
+
     // Modo estado parcial
-    /*
     else if (modo_estado_parcial && modo_fichero)
     {
         int result = 0;
@@ -345,18 +352,16 @@ int main(int argc, char *argv[])
         }
 
         // Guardar el estado parcial de la sala en un fichero
-        result = guarda_estadoparcial_sala(ruta_fichero, capacidad(), estado_asiento);
-
-        if (result == -1)
+        result = guarda_estadoparcial_sala(ruta_fichero, capacidad(), estado_asiento_local); // Cambio realizado aquí
+        if (result != OK)
         {
             fprintf(stderr, "Ha ocurrido un error al guardar el estado parcial de la sala.\n");
             return ERROR;
         }
 
         // Recuperar el estado parcial de la sala desde un fichero
-        result = recupera_estadoparcial_sala(ruta_fichero, capacidad(), estado_asiento);
-
-        if (result == -1)
+        result = recupera_estadoparcial_sala(ruta_fichero, capacidad(), estado_asiento_local); // Cambio realizado aquí
+        if (result != OK)
         {
             fprintf(stderr, "Ha ocurrido un error al recuperar el estado parcial de la sala.\n");
             return ERROR;
@@ -366,11 +371,12 @@ int main(int argc, char *argv[])
         for (int i = 0; i < capacidad(); i++)
         {
             printf("\n");
-            printf("%d", estado_asiento(i));
+            printf("%d", estado_asiento_local[i]);  // Actualización de la llamada a la variable
         }
         printf("\n");
     }
-    */
+
+
     // Prints de ayuda por si no se sabe usar el programa mediante CLI
     else
     {
