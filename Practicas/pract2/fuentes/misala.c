@@ -81,8 +81,10 @@ int main(int argc, char *argv[])
     int modo_anula = 0;
     // Flag estado
     int modo_estado = 0;
-    // Flag estado parcial
+    // Flag guarda estado parcial
     int modo_estado_parcial = 0;
+    // Flag recupera estado parcial
+    int modo_recupera_estado_parcial = 0;
     // Capacidad de la sala
     int cap = 0;
     // Ruta del fichero
@@ -116,6 +118,11 @@ int main(int argc, char *argv[])
     {
         modo_estado_parcial = 1;
     }
+    else if (strcmp(argv[1],"recupera_estado") == 0)
+    {
+        modo_recupera_estado_parcial = 1;
+    }
+    
 
     // Comprobamos que se ha introducido un fichero, parametro obligatorio y otras opciones
 
@@ -174,11 +181,6 @@ int main(int argc, char *argv[])
             printf("Falta argumento para la opción '%c'\n", optopt);
             return ERROR;
 
-        // Opcion estado parcial
-        case 'e':
-            modo_estado_parcial = 1;
-            break;
-
         // Opcion no valida
         case '?':
             printf("Opción inválida '%c'\n", optopt);
@@ -211,8 +213,8 @@ int main(int argc, char *argv[])
                 return ERROR;
             }
         }
-        printf("%s sala creada con éxito.\n", (comprueba_error() == OK) ? "La" : "No se pudo crear la");
-
+        printf(" Sala creada con éxito.\n");
+        return OK;
     }
 
     // Modo reserva
@@ -330,7 +332,7 @@ int main(int argc, char *argv[])
         printf("%s estado de la sala.\n", (comprueba_error() == OK) ? "Se pudo comprobar el" : "No se pudo comprobar el");
 
         printf("Estado de la sala:\n");
-        for (int i = 0; i < capacidad(); i++)
+        for (int i = 1; i < capacidad(); i++)
         {
             printf("\n");
             printf("%d", estado_asiento(i));
@@ -341,52 +343,29 @@ int main(int argc, char *argv[])
     // Modo estado parcial
     else if (modo_estado_parcial && modo_fichero)
     {
-        int result = 0;
-        int* estado_asiento = (int*)malloc(sizeof(int) * capacidad()); // Variable local para almacenar el estado parcial
-
-        if (estado_asiento == NULL)
-        {
-            fprintf(stderr, "Error al asignar memoria para el estado parcial de la sala.\n");
-            return ERROR;
-        }
+        int parcial = 0;
+        personas = realloc(personas,sizeof(int) * num_asientos);
 
         if (access(ruta_fichero, F_OK) != 0)
         {
             fprintf(stderr, "La ruta especificada para el fichero no es válida o no se tienen los permisos adecuados.\n");
-            free(estado_asiento);
             return ERROR;
         }
 
-        // Guardar el estado parcial de la sala en un fichero
-        result = guarda_estadoparcial_sala(ruta_fichero, capacidad(), estado_asiento);
-        if (result != 0)
+        parcial = recupera_estadoparcial_sala(ruta_fichero, num_asientos, personas);
+
+        if (parcial == -1)
         {
             fprintf(stderr, "Ha ocurrido un error al guardar el estado parcial de la sala.\n");
-            free(estado_asiento);
             return ERROR;
         }
-
-        // Recuperar el estado parcial de la sala desde un fichero
-        result = recupera_estadoparcial_sala(ruta_fichero, capacidad(), estado_asiento);
-        if (result != 0)
-        {
-            fprintf(stderr, "Ha ocurrido un error al recuperar el estado parcial de la sala.\n");
-            free(estado_asiento);
-            return ERROR;
-        }
-
-        //Revisar
-        printf("Estado de la sala:\n");
-        for (int i = 0; i < capacidad(); i++)
-        {
-            printf("\n");
-            printf("%d", estado_asiento[i]);
-        }
-        printf("\n");
-
-        free(estado_asiento);
     }
     
+    // Modo recupera estado parcial
+    else if (modo_recupera_estado_parcial && modo_fichero)
+    {
+        
+    }
 
     // Prints de ayuda por si no se sabe usar el programa mediante CLI
     else

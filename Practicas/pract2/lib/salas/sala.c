@@ -193,6 +193,152 @@ int capacidad() {
 int guarda_estado_sala(const char* ruta_fichero) {
     // Comprobar que la sala exista
     int fd = open(ruta_fichero, O_RDWR | O_CREAT | O_TRUNC, 0666);
+
+    char buffer[10];
+
+    sprintf(buffer, "%d", capacidad());
+    write(fd, buffer, 10);
+    
+    // Comprobar que se haya podido abrir el fichero
+    for (int i = 0; i < sala->capacidad; i++)
+    {
+        sprintf(buffer, "%d", sala->asientos[i]);
+        write(fd, buffer, 10);
+    }
+    
+    // Cerrar el fichero
+    close(fd);
+    return NO_ERROR;
+}
+
+// Funcion para recuperar el estado de la sala desde un fichero
+int recupera_estado_sala(const char* ruta_fichero) {
+    // Comprobar que el fichero exista
+    int fd = open(ruta_fichero, O_RDONLY);
+    
+    char buffer[10];
+
+    read(fd, buffer, 10);
+    crea_sala(atoi(buffer)); // creamos la sala
+
+    // leemos los asientos de la sala
+    for (int i = 0; i < sala->capacidad; i++)
+    {
+        read(fd, buffer, 10);
+        sala->asientos[i] = atoi(buffer);
+    }
+    
+
+    close(fd); // cerramos el archivo
+    return NO_ERROR;
+    
+}
+
+
+// Funcion para guardar el estado de la sala en un fichero
+int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos){
+    // Comprobar que la sala exista
+    int fd = open(ruta_fichero, O_RDWR, 0666);
+
+    char* buffer = malloc(10);
+
+    lseek(fd, 10, SEEK_CUR);
+    
+    int parcial = 0;
+
+    // Comprobar que se haya podido abrir el fichero
+    for (int i = 0; i < sala->capacidad; i++)
+    {
+        // comprobamos si el asiento está en el array de asientos
+        for (int j = 0; j < num_asientos; j++)
+        {
+            // si está, escribimos el id del cliente
+            if ( i == *(id_asientos + j))
+            {
+                parcial = 1;
+                sprintf(buffer, "%d", sala->asientos[i]);
+                write(fd, buffer, 10);
+            }
+        }
+
+        // si no se ha escrito nada, escribimos un 0
+        if (parcial == 0)
+        {
+            lseek(fd, 10, SEEK_CUR);
+        } else {
+            parcial = 0;
+        }
+    }
+    
+    // Cerrar el fichero
+    close(fd);
+    return NO_ERROR;
+}
+
+// Funcion para recuperar el estado de la sala desde un fichero
+int recupera_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos){
+    // Comprobar que el fichero exista
+    int fd = open(ruta_fichero, O_RDONLY);
+    
+    char* buffer = malloc(10);
+
+    lseek(fd, 10, SEEK_CUR);
+
+    int parcial = 0;
+
+    // leemos los asientos de la sala
+    for (int i = 0; i < sala->capacidad; i++)
+    {
+        
+        for (int j = 0; j < num_asientos; j++)
+        {
+            printf("%d\n", *(id_asientos + j));
+            // si el asiento está en el array de asientos, lo leemos
+            if ( i == *(id_asientos + j))
+            {
+                read(fd, buffer, 10);
+                sala->asientos[i] = atoi(buffer);
+                parcial = 1;
+            }
+        }
+        // si no se ha leido nada, saltamos 10 bytes
+        if (parcial == 0)
+        {
+            lseek(fd, 10, SEEK_CUR);
+        } else {
+            parcial = 0;
+        }
+        
+    }
+    
+    close(fd); // cerramos el archivo
+    return NO_ERROR;
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+// Funcion para guardar el estado de la sala en un fichero
+int guarda_estado_sala(const char* ruta_fichero) {
+    // Comprobar que la sala exista
+    int fd = open(ruta_fichero, O_RDWR | O_CREAT | O_TRUNC, 0666);
     // Comprobar que se haya podido abrir el fichero
     if (fd == -1) {
         return ERR_ABRIR_ARCHIVO;
@@ -219,7 +365,9 @@ int guarda_estado_sala(const char* ruta_fichero) {
     close(fd);
     return NO_ERROR;
 }
+*/
 
+/*
 // Funcion para recuperar el estado de la sala desde un fichero
 int recupera_estado_sala(const char* ruta_fichero) {
     // Comprobar que el fichero exista
@@ -263,7 +411,9 @@ int recupera_estado_sala(const char* ruta_fichero) {
     return NO_ERROR;
     
 }
+*/
 
+/*
 // Función para guardar el estado parcial de la sala en un fichero
 int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos)
 {
@@ -339,3 +489,4 @@ int recupera_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, i
 
     return NO_ERROR; // todo ha ido bien
 }
+*/
