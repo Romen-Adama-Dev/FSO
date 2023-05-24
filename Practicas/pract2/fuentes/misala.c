@@ -1,4 +1,4 @@
-// File: sala.c
+// File: misala.c
 // Created: 15-04-2023 11:00:00
 // Author:  Romen Adama Caetano Ramirez
 
@@ -96,6 +96,9 @@ int main(int argc, char *argv[])
     // Array de personasS
     int i = 0;
     int* personas = malloc(sizeof(int));
+
+    // Declaración de la función asiento_reservado_en_archivo
+    int asiento_reservado_en_archivo(int identificador, const char* ruta_fichero);
 
     // Comprobamos que se ha introducido un modo de los solicitados
     if(strcmp(argv[1],"crea") == 0)
@@ -221,6 +224,7 @@ int main(int argc, char *argv[])
     else if (modo_reserva && modo_fichero)
     {
         int result = 0;
+        int *asientos_reservados = malloc(num_asientos * sizeof(int));
 
         if (num_asientos <= 0)
         {
@@ -243,25 +247,49 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Ha ocurrido un error al recuperar el estado de la sala.\n");
             return ERROR;
         }
-        
+
         for (i = 0; i < num_personas; i++)
         {
-            result = reserva_asiento(personas[i]);
-            if (result == -1)
-            {   
-                fprintf(stderr, "Ha ocurrido un error al reservar el asiento para la persona con identificador %d.\n", personas[i]);
+            if (personas[i] <= 0)
+            {
+                fprintf(stderr, "El identificador de la persona debe ser un entero positivo mayor que cero.\n");
+                free(asientos_reservados);
                 return ERROR;
             }
+
+            for (int j = 0; j < i; j++)
+            {
+                if (personas[i] == asientos_reservados[j])
+                {
+                    fprintf(stderr, "No se puede reservar con un identificador que ya ha sido utilizado previamente.\n");
+                    free(asientos_reservados);
+                    return ERROR;
+                }
+            }
+
+            result = reserva_asiento(personas[i]);
+            if (result == -1)
+            {
+                fprintf(stderr, "Ha ocurrido un error al reservar el asiento para la persona con identificador %d.\n", personas[i]);
+                free(asientos_reservados);
+                return ERROR;
+            }
+
+            asientos_reservados[i] = personas[i];
         }
-        
+
         result = guarda_estado_sala(ruta_fichero);
         if (result == -1)
         {
             fprintf(stderr, "Ha ocurrido un error al guardar el estado de la sala después de realizar la reserva.\n");
+            free(asientos_reservados);
             return ERROR;
         }
+
+        free(asientos_reservados);
+
         printf("%s reserva con éxito.\n", (comprueba_error() == OK) ? "Se pudo crear la" : "No se pudo crear la");
-    return 0;
+        return 0;
     }
 
     // Modo anula
@@ -332,7 +360,7 @@ int main(int argc, char *argv[])
         printf("%s estado de la sala.\n", (comprueba_error() == OK) ? "Se pudo comprobar el" : "No se pudo comprobar el");
 
         printf("Estado de la sala:\n");
-        for (int i = 1; i < capacidad(); i++)
+        for (int i = 1; i <= capacidad(); i++)
         {
             printf("\n");
             printf("%d", estado_asiento(i));
@@ -343,8 +371,30 @@ int main(int argc, char *argv[])
     // Modo estado parcial
     else if (modo_estado_parcial && modo_fichero)
     {
-        int parcial = 0;
-        personas = realloc(personas,sizeof(int) * num_asientos);
+        recupera_estado_sala(ruta_fichero);
+
+        num_asientos = 3;
+
+        int* personas = malloc(sizeof(int) * num_asientos);
+
+        personas[0] = 2;
+        personas[1] = 5;
+        personas[2] = 9;
+
+        libera_asiento(2);
+        libera_asiento(5);
+        libera_asiento(9);
+
+        reserva_asiento(50);
+        reserva_asiento(70);
+        reserva_asiento(90);
+
+        printf("%d\n", estado_asiento(5));
+        if (personas == NULL)
+        {
+            fprintf(stderr, "Error de asignación de memoria.\n");
+            return ERROR;
+        }
 
         if (access(ruta_fichero, F_OK) != 0)
         {
@@ -352,19 +402,54 @@ int main(int argc, char *argv[])
             return ERROR;
         }
 
-        parcial = recupera_estadoparcial_sala(ruta_fichero, num_asientos, personas);
-
-        if (parcial == -1)
+        // Lógica para guardar el estado parcial de la sala en el fichero
+        int result = guarda_estadoparcial_sala(ruta_fichero, num_asientos, personas);
+        if (result == ERROR)
         {
             fprintf(stderr, "Ha ocurrido un error al guardar el estado parcial de la sala.\n");
+            free(personas);
             return ERROR;
         }
+
+        free(personas);
+
+        printf("%s estado parcial de la sala.\n", (comprueba_error() == OK) ? "Se pudo guardar el" : "No se pudo guardar el");
+        return 0;
     }
     
     // Modo recupera estado parcial
     else if (modo_recupera_estado_parcial && modo_fichero)
     {
-        
+        recupera_estado_sala(ruta_fichero);
+
+        int* personas = malloc(sizeof(int) * num_asientos);
+
+        if (personas == NULL)
+        {
+            fprintf(stderr, "Error de asignación de memoria.\n");
+            return ERROR;
+        }
+
+        if (access(ruta_fichero, F_OK) != 0)
+        {
+            fprintf(stderr, "La ruta especificada para el fichero no es válida o no se tienen los permisos adecuados.\n");
+            free(personas);
+            return ERROR;
+        }
+
+        // Lógica para recuperar el estado parcial de la sala desde el fichero
+        int result = recupera_estadoparcial_sala(ruta_fichero, num_asientos, personas);
+        if (result == ERROR)
+        {
+            fprintf(stderr, "Ha ocurrido un error al recuperar el estado parcial de la sala.\n");
+            free(personas);
+            return ERROR;
+        }
+
+        free(personas);
+
+        printf("%s estado parcial de la sala.\n", (comprueba_error() == OK) ? "Se pudo recuperar el" : "No se pudo recuperar el");
+        return 0;
     }
 
     // Prints de ayuda por si no se sabe usar el programa mediante CLI

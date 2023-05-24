@@ -97,7 +97,6 @@ void elimina_sala() {
     sala = NULL;
 }
 
-
 int reserva_asiento(int id) {
     // Contstantes internas para los valores de retorno
     const int ASIENTO_SIN_RESERVAR = 0; // Ejemplo de valor de retorno para cuando el asiento está libre
@@ -228,12 +227,10 @@ int recupera_estado_sala(const char* ruta_fichero) {
         sala->asientos[i] = atoi(buffer);
     }
     
-
     close(fd); // cerramos el archivo
     return NO_ERROR;
     
 }
-
 
 // Funcion para guardar el estado de la sala en un fichero
 int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos){
