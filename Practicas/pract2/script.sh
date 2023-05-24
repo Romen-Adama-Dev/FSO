@@ -8,4 +8,6 @@ ar -crs lib/libsala.a lib/salas/sala.o
 
 gcc fuentes/misala.c -lsala -Llib -o fuentes/misala
 
+gcc fuentes/parciales.c -lsala -Llib -o fuentes/parciales
+
 #fuentes/misala

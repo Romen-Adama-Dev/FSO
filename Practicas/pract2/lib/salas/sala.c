@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <errno.h>
 
+// Estructura de la sala
 typedef struct {
     int *asientos; // Puntero al array de asientos
     int capacidad; // Capacidad de la sala
@@ -41,6 +42,7 @@ typedef enum {
     ERR_NUM_ASIENTOS = -1,
 } sala_error;
 
+// Crea una sala con la capacidad indicada
 void crea_sala(int capacidad) {
     // Comprobar si ya existe una sala creada
     if (sala != NULL) {
@@ -80,6 +82,7 @@ void crea_sala(int capacidad) {
     }
 }
 
+// Elimina la sala y libera la memoria
 void elimina_sala() {
     // Comprobar que la sala exista
     if (sala == NULL) {
@@ -97,6 +100,7 @@ void elimina_sala() {
     sala = NULL;
 }
 
+// Reserva un asiento y devuelve el número de asiento reservado o un código de error
 int reserva_asiento(int id) {
     // Contstantes internas para los valores de retorno
     const int ASIENTO_SIN_RESERVAR = 0; // Ejemplo de valor de retorno para cuando el asiento está libre
@@ -130,6 +134,7 @@ int reserva_asiento(int id) {
 return ERR_SIN_ASIENTOS_LIBRES;
 }
 
+// Libera un asiento y devuelve el id del cliente que lo tenía reservado
 int libera_asiento(int asiento) {
     // Comprobar que la sala exista
     if (sala == NULL) {
@@ -193,14 +198,17 @@ int guarda_estado_sala(const char* ruta_fichero) {
     // Comprobar que la sala exista
     int fd = open(ruta_fichero, O_RDWR | O_CREAT | O_TRUNC, 0666);
 
+    // reservamos memoria para el buffer
     char buffer[10];
-
+    
+    // Escribir la capacidad de la sala
     sprintf(buffer, "%d", capacidad());
     write(fd, buffer, 10);
     
     // Comprobar que se haya podido abrir el fichero
     for (int i = 0; i < sala->capacidad; i++)
     {
+        // escribimos el id del cliente
         sprintf(buffer, "%d", sala->asientos[i]);
         write(fd, buffer, 10);
     }
@@ -215,15 +223,19 @@ int recupera_estado_sala(const char* ruta_fichero) {
     // Comprobar que el fichero exista
     int fd = open(ruta_fichero, O_RDONLY);
     
+    // reservamos memoria para el buffer
     char buffer[10];
 
+    // leemos la capacidad de la sala
     read(fd, buffer, 10);
     crea_sala(atoi(buffer)); // creamos la sala
 
     // leemos los asientos de la sala
     for (int i = 0; i < sala->capacidad; i++)
     {
+        // leemos el id del cliente
         read(fd, buffer, 10);
+        // guardamos el id del cliente en el array de asientos
         sala->asientos[i] = atoi(buffer);
     }
     
@@ -237,10 +249,13 @@ int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int
     // Comprobar que la sala exista
     int fd = open(ruta_fichero, O_RDWR, 0666);
 
+    // reservamos memoria para el buffer
     char* buffer = malloc(10);
 
+    // saltamos de 10 en 10 bytes hasta llegar al final del fichero
     lseek(fd, 10, SEEK_CUR);
     
+    // creamos una variable y la inicializamos a 0
     int parcial = 0;
 
     // Comprobar que se haya podido abrir el fichero
@@ -252,6 +267,7 @@ int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int
             // si está, escribimos el id del cliente
             if ( i == *(id_asientos + j))
             {
+                // escribimos el id del cliente
                 parcial = 1;
                 sprintf(buffer, "%d", sala->asientos[i]);
                 write(fd, buffer, 10);
@@ -261,8 +277,10 @@ int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int
         // si no se ha escrito nada, escribimos un 0
         if (parcial == 0)
         {
+            // saltamos 10 bytes
             lseek(fd, 10, SEEK_CUR);
         } else {
+            // si se ha escrito algo, ponemos la variable a 0
             parcial = 0;
         }
     }
@@ -277,22 +295,25 @@ int recupera_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, i
     // Comprobar que el fichero exista
     int fd = open(ruta_fichero, O_RDONLY);
     
+    // reservamos memoria para el buffer
     char* buffer = malloc(10);
 
+    // leemos la capacidad de la sala
     lseek(fd, 10, SEEK_CUR);
 
+    // creamos una variable y la inicializamos a 0
     int parcial = 0;
 
     // leemos los asientos de la sala
     for (int i = 0; i < sala->capacidad; i++)
     {
-        
+        // for anidado que comprueba si el asiento está en el array de asientos
         for (int j = 0; j < num_asientos; j++)
         {
-            printf("%d\n", *(id_asientos + j));
             // si el asiento está en el array de asientos, lo leemos
             if ( i == *(id_asientos + j))
             {
+                // leemos el id del cliente
                 read(fd, buffer, 10);
                 sala->asientos[i] = atoi(buffer);
                 parcial = 1;
@@ -301,8 +322,10 @@ int recupera_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, i
         // si no se ha leido nada, saltamos 10 bytes
         if (parcial == 0)
         {
+            // saltamos 10 bytes
             lseek(fd, 10, SEEK_CUR);
         } else {
+            // si se ha leido algo, ponemos la variable a 0
             parcial = 0;
         }
         
@@ -310,8 +333,9 @@ int recupera_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, i
     
     close(fd); // cerramos el archivo
     return NO_ERROR;
-    
 }
+
+// Codigo de recupera, guarda, recupera_parcial y guarda_parcial del primer intento mediante fichero de caracteres
 
 /*
 // Funcion para guardar el estado de la sala en un fichero
