@@ -60,7 +60,6 @@ void imprime_ayuda()
     printf("-o: sobreescribe el fichero especificado en '-f', si ya existe.\n");
     printf("-r: realiza la reserva de un número de asientos para las personas cuyos identificadores se especifican en la orden.\n");
     printf("-a: anula la reserva de un asiento para la persona cuyo asiento se especifica en la orden.\n");
-    printf("-e: muestra el estado parcial de la sala.\n");
 }
 
 // Funcion que crea una sala con la capacidad indicada, modifica mediante una reserva y guarda el estado en un fichero
@@ -81,10 +80,6 @@ int main(int argc, char *argv[])
     int modo_anula = 0;
     // Flag estado
     int modo_estado = 0;
-    // Flag guarda estado parcial
-    int modo_estado_parcial = 0;
-    // Flag recupera estado parcial
-    int modo_recupera_estado_parcial = 0;
     // Capacidad de la sala
     int cap = 0;
     // Ruta del fichero
@@ -117,15 +112,6 @@ int main(int argc, char *argv[])
     {
         modo_estado = 1;
     }
-    else if (strcmp(argv[1],"estado_parcial") == 0)
-    {
-        modo_estado_parcial = 1;
-    }
-    else if (strcmp(argv[1],"recupera_estado") == 0)
-    {
-        modo_recupera_estado_parcial = 1;
-    }
-    
 
     // Comprobamos que se ha introducido un fichero, parametro obligatorio y otras opciones
 
@@ -150,11 +136,6 @@ int main(int argc, char *argv[])
             modo_sobreescribir = 1;
             break;
 
-        // Opcion reserva
-        case 'r':
-            modo_reserva = 1;
-            break;
-
         // Opcion numero de asientos
         case 'n':
             num_asientos = atoi(optarg);
@@ -164,7 +145,6 @@ int main(int argc, char *argv[])
                 *(personas + i) = atoi(argv[optind + i]);
                 num_personas++;
             }
-            
             break;
 
         // Opcion anula
@@ -194,7 +174,6 @@ int main(int argc, char *argv[])
             break;
         }
     }
-
 
     // Comprobamos que se ha introducido un modo de los solicitados
     // Modo crea sala
