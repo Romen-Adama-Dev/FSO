@@ -422,7 +422,7 @@ int main(int argc, char *argv[])
     {
         recupera_estado_sala(ruta_fichero);
 
-        int* personas = malloc(sizeof(int) * num_asientos);
+        personas = malloc(sizeof(int) * num_asientos);
 
         if (personas == NULL)
         {
