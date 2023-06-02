@@ -40,6 +40,7 @@ typedef enum {
     ERR_SALA_NO_CREADA = -1,
     ERR_LEER_ARCHIVO = -1,
     ERR_NUM_ASIENTOS = -1,
+    ERR_CARRAR_ARCHIVO = -1,
 } sala_error;
 
 // Crea una sala con la capacidad indicada
@@ -198,23 +199,45 @@ int guarda_estado_sala(const char* ruta_fichero) {
     // Comprobar que la sala exista
     int fd = open(ruta_fichero, O_RDWR | O_CREAT | O_TRUNC, 0666);
 
+    // Comprobar que se ha abierto correctamente el fichero
+    if (fd == -1) {
+        perror("Error al abrir el fichero");
+        return ERR_ABRIR_ARCHIVO;
+    }
+
     // reservamos memoria para el buffer
     char buffer[10];
     
-    // Escribir la capacidad de la sala
+    /// Escribir la capacidad de la sala
     sprintf(buffer, "%d", capacidad());
-    write(fd, buffer, 10);
-    
-    // Comprobar que se haya podido abrir el fichero
-    for (int i = 0; i < sala->capacidad; i++)
-    {
-        // escribimos el id del cliente
-        sprintf(buffer, "%d", sala->asientos[i]);
-        write(fd, buffer, 10);
+    ssize_t written = write(fd, buffer, 10);
+
+    // Comprobar que se haya podido escribir en el fichero
+    if (written == -1) {
+        perror("Error al escribir en el fichero");
+        close(fd);
+        return errno;
     }
-    
-    // Cerrar el fichero
-    close(fd);
+
+    // Comprobar que se haya podido abrir el fichero
+    for (int i = 0; i < sala->capacidad; i++) {
+        sprintf(buffer, "%d", sala->asientos[i]);
+        written = write(fd, buffer, 10);
+
+        // Comprobar que se haya podido escribir en el fichero
+        if (written == -1) {
+            perror("Error al escribir en el fichero");
+            close(fd);
+            return errno;
+        }
+    }
+
+    // Condicion de si no hay error, se cierra el fichero
+    if (close(fd) == -1) {
+        perror("Error al cerrar el fichero");
+        return errno;
+    }
+
     return NO_ERROR;
 }
 
@@ -222,39 +245,76 @@ int guarda_estado_sala(const char* ruta_fichero) {
 int recupera_estado_sala(const char* ruta_fichero) {
     // Comprobar que el fichero exista
     int fd = open(ruta_fichero, O_RDONLY);
-    
-    // reservamos memoria para el buffer
+
+    // Comprobar que se ha abierto correctamente el fichero
+    if (fd == -1) {
+        perror("Error al abrir el fichero");
+        return errno;
+    }
+
+     // reservamos memoria para el buffer
     char buffer[10];
+    // Leer la capacidad de la sala
+    ssize_t read_bytes = read(fd, buffer, 10);
 
-    // leemos la capacidad de la sala
-    read(fd, buffer, 10);
-    crea_sala(atoi(buffer)); // creamos la sala
+    // Comprobar que se haya podido leer del fichero
+    if (read_bytes == -1) {
+        perror("Error al leer el fichero");
+        close(fd);
+        return errno;
+    }
 
-    // leemos los asientos de la sala
-    for (int i = 0; i < sala->capacidad; i++)
-    {
-        // leemos el id del cliente
-        read(fd, buffer, 10);
-        // guardamos el id del cliente en el array de asientos
+    // Crear la sala
+    crea_sala(atoi(buffer));
+
+    // Leer el estado de los asientos
+    for (int i = 0; i < sala->capacidad; i++) {
+        // Leer el estado de un asiento
+        read_bytes = read(fd, buffer, 10);
+
+        // Comprobar que se haya podido leer del fichero
+        if (read_bytes == -1) {
+            perror("Error al leer el fichero");
+            close(fd);
+            return errno;
+        }
+
+        // Guardar el estado del asiento
         sala->asientos[i] = atoi(buffer);
     }
-    
-    close(fd); // cerramos el archivo
+
+    // Condicion de si no hay error, se cierra el fichero
+    if (close(fd) == -1) {
+        perror("Error al cerrar el fichero");
+        return errno;
+    }
+
     return NO_ERROR;
-    
 }
 
-// Funcion para guardar el estado de la sala en un fichero
 int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos){
     // Comprobar que la sala exista
     int fd = open(ruta_fichero, O_RDWR, 0666);
+
+    // Verificar si open ha producido un error
+    if (fd == -1) {
+        perror("Error al abrir el fichero");
+        return errno;
+    }
 
     // reservamos memoria para el buffer
     char* buffer = malloc(10);
 
     // saltamos de 10 en 10 bytes hasta llegar al final del fichero
-    lseek(fd, 10, SEEK_CUR);
-    
+    off_t offset = lseek(fd, 10, SEEK_CUR);
+
+    // Verificar si lseek ha producido un error
+    if (offset == (off_t)-1) {
+        perror("Error al saltar bytes en el fichero");
+        close(fd);
+        return errno;
+    }
+
     // creamos una variable y la inicializamos a 0
     int parcial = 0;
 
@@ -270,7 +330,14 @@ int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int
                 // escribimos el id del cliente
                 parcial = 1;
                 sprintf(buffer, "%d", sala->asientos[i]);
-                write(fd, buffer, 10);
+                ssize_t written = write(fd, buffer, 10);
+
+                // Verificar si write ha producido un error
+                if (written == -1) {
+                    perror("Error al escribir en el fichero");
+                    close(fd);
+                    return errno;
+                }
             }
         }
 
@@ -278,7 +345,14 @@ int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int
         if (parcial == 0)
         {
             // saltamos 10 bytes
-            lseek(fd, 10, SEEK_CUR);
+            offset = lseek(fd, 10, SEEK_CUR);
+
+            // Verificar si lseek ha producido un error
+            if (offset == (off_t)-1) {
+                perror("Error al saltar bytes en el fichero");
+                close(fd);
+                return errno;
+            }
         } else {
             // si se ha escrito algo, ponemos la variable a 0
             parcial = 0;
@@ -286,7 +360,11 @@ int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int
     }
     
     // Cerrar el fichero
-    close(fd);
+    if (close(fd) == -1) {
+        perror("Error al cerrar el fichero");
+        return errno;
+    }
+
     return NO_ERROR;
 }
 
@@ -294,46 +372,76 @@ int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int
 int recupera_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos){
     // Comprobar que el fichero exista
     int fd = open(ruta_fichero, O_RDONLY);
-    
+
+    // Verificar si open ha producido un error
+    if (fd == -1) {
+        perror("Error al abrir el fichero");
+        return errno;
+    }
+
     // reservamos memoria para el buffer
     char* buffer = malloc(10);
 
-    // leemos la capacidad de la sala
-    lseek(fd, 10, SEEK_CUR);
+    // saltamos de 10 en 10 bytes hasta llegar al final del fichero
+    off_t offset = lseek(fd, 10, SEEK_CUR);
+
+    // Verificar si lseek ha producido un error
+    if (offset == (off_t)-1) {
+        perror("Error al saltar bytes en el fichero");
+        close(fd);
+        return errno;
+    }
 
     // creamos una variable y la inicializamos a 0
     int parcial = 0;
 
     // leemos los asientos de la sala
-    for (int i = 0; i < sala->capacidad; i++)
-    {
+    for (int i = 0; i < sala->capacidad; i++) {
         // for anidado que comprueba si el asiento está en el array de asientos
-        for (int j = 0; j < num_asientos; j++)
-        {
+        for (int j = 0; j < num_asientos; j++) {
             // si el asiento está en el array de asientos, lo leemos
-            if ( i == *(id_asientos + j))
-            {
+            if ( i == *(id_asientos + j)) {
                 // leemos el id del cliente
-                read(fd, buffer, 10);
+                ssize_t read_bytes = read(fd, buffer, 10);
+
+                // Verificar si read ha producido un error
+                if (read_bytes == -1) {
+                    perror("Error al leer del fichero");
+                    close(fd);
+                    return errno;
+                }
+
                 sala->asientos[i] = atoi(buffer);
                 parcial = 1;
             }
         }
+
         // si no se ha leido nada, saltamos 10 bytes
-        if (parcial == 0)
-        {
+        if (parcial == 0) {
             // saltamos 10 bytes
-            lseek(fd, 10, SEEK_CUR);
+            offset = lseek(fd, 10, SEEK_CUR);
+
+            // Verificar si lseek ha producido un error
+            if (offset == (off_t)-1) {
+                perror("Error al saltar bytes en el fichero");
+                close(fd);
+                return errno;
+            }
         } else {
             // si se ha leido algo, ponemos la variable a 0
             parcial = 0;
         }
-        
     }
-    
-    close(fd); // cerramos el archivo
+
+    // Cerrar el fichero
+    if (close(fd) == -1) {
+        perror("Error al cerrar el fichero");
+        return errno;
+    }
+
     return NO_ERROR;
 }
+
 
 // Codigo de recupera, guarda, recupera_parcial y guarda_parcial del primer intento mediante fichero de caracteres
 
