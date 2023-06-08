@@ -1,0 +1,24 @@
+Hito 1: Evidenciar el problema de la sección crítica
+Descripción:
+
+Este hito se enfoca en la creación de un programa multihilo que evidencie el problema de la sección crítica en el acceso a la estructura de datos compartida por todos los hilos. El programa, denominado multihilos, se invocará con un número entero positivo n, que indica la cantidad de hilos que se deben ejecutar.
+
+Cada hilo realizará 3 reservas y luego liberará los 3 asientos reservados, introduciendo un retardo entre cada reserva y liberación. Además, se lanzará un hilo adicional que mostrará el estado de la sala en intervalos de tiempo regulares.
+
+En caso de que un hilo intente realizar una reserva y no haya asientos disponibles, o intente liberar un asiento y no haya asientos ocupados, el hilo finalizará su ejecución sin afectar la sala. Estas situaciones de error se manifiestan cuando hay corrupción en los datos.
+
+Dado que la API de gestión de asientos no contempla el acceso concurrente, múltiples hilos pueden acceder simultáneamente a la estructura de datos, resultando en problemas de corrupción. Ejecutando el programa en repetidas ocasiones, podrás observar casos en los que un asiento es reservado múltiples veces, indicando la presencia de secciones críticas.
+
+Solucion:
+
+Este código C implementa la simulación de la reserva y liberación de asientos en una sala, utilizando hilos para representar la ejecución concurrente de estas acciones.
+
+Se definen dos funciones que se ejecutan en hilos separados: `reserva_y_libera` y `muestra_estado_sala`. 
+
+- La función `reserva_y_libera` intenta reservar y luego liberar 3 asientos por cada hilo creado. Utiliza un bucle para reservar los asientos uno por uno, y bloquea la sección crítica con un mutex durante la reserva y la liberación. Este mecanismo de bloqueo evita que dos hilos modifiquen el mismo asiento al mismo tiempo, lo que puede llevar a problemas de sincronización y corrupción de datos. Una vez que un hilo ha reservado un asiento, lo libera después de un retardo aleatorio.
+
+- La función `muestra_estado_sala` imprime el estado de la sala (es decir, si los asientos están reservados o no) en un ciclo infinito. Utiliza el mismo mutex que `reserva_y_libera` para evitar conflictos en el acceso a los datos de los asientos.
+
+La función `main` inicializa el entorno de la simulación. Primero, comprueba que se haya proporcionado el número correcto de argumentos al programa. Luego, crea una sala con un número específico de asientos, inicializa el mutex que se usará para la sincronización, y crea `n` hilos que ejecutan la función `reserva_y_libera`. También crea un hilo adicional que ejecuta la función `muestra_estado_sala`. Cuando todos los hilos de reserva y liberación han terminado su ejecución, el hilo de estado de sala se cancela, el mutex se destruye, y la sala se elimina.
+
+Este código demuestra el problema de la sección crítica en un sistema multihilo. Sin el uso de un mutex o similar, dos o más hilos podrían intentar reservar o liberar el mismo asiento al mismo tiempo, resultando en inconsistencias y corrupción de datos. El uso del mutex garantiza que sólo un hilo puede reservar o liberar un asiento en un momento dado, evitando estos problemas.

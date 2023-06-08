@@ -1,138 +1,172 @@
 // File: multihilos.c
-// Created: 02-05-2023 11:00:00
+// Created: 09-06-2023 12:00:00
 // Author:  Romen Adama Caetano Ramirez
+// Programa que reserva y libera asientos de forma concurrente
 
+// Librerias de C 
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
 #include <unistd.h>
-#include "sala.h" // Incluir la librería de la sala
-#include "retardo.h" // Incluir la librería de retardo
+#include <pthread.h>
+#include <stdint.h>
+#include "sala.h"
+#include "retardo.h"
 
-#define NUM_RESERVAS 3
+// Variables globales definidas
+#define NUM_ASIENTOS 30
+#define MAX_RESERVAS 3
 
-// Estructura para pasar argumentos al hilo de visualización del estado de la sala
-struct VisualizacionArgs {
-    int intervalo;
-};
+// Variables globales declaradas
+int asientos[NUM_ASIENTOS] = {0};
+// Variable mutex
+pthread_mutex_t mutex;
 
-// Variable compartida para el mutex de la sala
-pthread_mutex_t sala_mutex = PTHREAD_MUTEX_INITIALIZER;
+// Funcion para reservar y liberar asientos
+void *reserva_y_libera(void *vargp) {
+    // Variables locales
+    int id = 0;
+    int asientos_reservados[MAX_RESERVAS];
 
-// Función para realizar una reserva de asiento
-void realizar_reservas(int id) {
-    for (int i = 0; i < NUM_RESERVAS; i++) {
-        pausa_aleatoria(0.05); // Retardo de tiempo aleatorio
+    // Bucle para reservar y liberar asientos
+    for (int i = 0; i < MAX_RESERVAS; i++) {
+        // Generar un id aleatorio
+        id = rand() % 100;
 
-        // Bloquear el mutex antes de acceder a la sala
-        pthread_mutex_lock(&sala_mutex);
+        // Bloquear el mutex
+        pthread_mutex_lock(&mutex); // Bloquear el mutex
 
-        int resultado = reserva_asiento(id);
-        if (resultado == 0) {
-            printf("Hilo %ld: Reservado asiento %d\n", pthread_self(), id);
-        } else {
-            printf("Hilo %ld: No se pudo reservar asiento %d. Sala llena.\n", pthread_self(), id);
-            break;
+        // Bucle para reservar asientos
+        while (asientos_libres() == 0) {
+            // Desbloquear el mutex
+            pthread_mutex_unlock(&mutex);
+            pausa_aleatoria(1.0);
+            // Bloquear el mutex
+            pthread_mutex_lock(&mutex);
         }
 
-        // Desbloquear el mutex después de acceder a la sala
-        pthread_mutex_unlock(&sala_mutex);
-    }
-}
+        // Reservar un asiento
+        int asiento = reserva_asiento(id);
 
-// Función para realizar la liberación de asientos
-void realizar_liberaciones(int id);
+        // Desbloquear el mutex
+        pthread_mutex_unlock(&mutex); // Desbloquear el mutex
 
-void realizar_liberaciones(int id) {
-    for (int i = 0; i < NUM_RESERVAS; i++) {
-        pausa_aleatoria(0.05); // Retardo de tiempo aleatorio
-
-        // Bloquear el mutex antes de acceder a la sala
-        pthread_mutex_lock(&sala_mutex);
-
-        int resultado = libera_asiento(id);
-        if (resultado == 0) {
-            printf("Hilo %ld: Liberado asiento %d\n", pthread_self(), id);
+        // Comprobar si se ha reservado el asiento
+        if (asiento != -1) {
+            printf("Hilo %d reservó el asiento %d\n", id, asiento);
+            // Si los asientos reservados son diferentes de -1 igualamos la variable asientos_reservados[i] a asiento
+            asientos_reservados[i] = asiento;
         } else {
-            printf("Hilo %ld: No se pudo liberar asiento %d. Asiento vacío.\n", pthread_self(), id);
-            // No es necesario usar 'break' aquí ya que solo se imprimirá un mensaje de error y se continuará con las liberaciones restantes.
+            printf("Hilo %d no pudo reservar un asiento\n", id);
         }
 
-        // Desbloquear el mutex después de acceder a la sala
-        pthread_mutex_unlock(&sala_mutex);
+        pausa_aleatoria(1.0);
     }
-}
 
-// Función auxiliar para envolver realizar_reservas
-void* reservas_wrapper(void* arg) {
-    // Convertir el argumento a un entero
-    int id = (intptr_t)arg;
-    realizar_liberaciones(id);
+    // Bucle para liberar asientos
+    for (int i = 0; i < MAX_RESERVAS; i++) {
+        pthread_mutex_lock(&mutex); // Bloquear el mutex
+
+        // Bucle para liberar asientos
+        while (asientos_ocupados() == 0) {
+            // Desbloquear el mutex
+            pthread_mutex_unlock(&mutex);
+            pausa_aleatoria(1.0);
+            // Bloquear el mutex
+            pthread_mutex_lock(&mutex);
+        }
+
+        // Liberar un asiento
+        id = libera_asiento(asientos_reservados[i]);
+
+        // Desbloquear el mutex
+        pthread_mutex_unlock(&mutex); // Desbloquear el mutex
+
+        // Comprobar si se ha liberado el asiento
+        if (id == -1) {
+            printf("Error no se pudo liberar el asiento \n");
+        } else {
+            printf("Hilo %d liberó el asiento \n", id);
+        }
+
+        pausa_aleatoria(1.0);
+    }
+
     return NULL;
 }
 
-// Función para mostrar el estado de la sala cada cierto intervalo de tiempo
-void* visualizar_estado(void* arg) {
-    struct VisualizacionArgs* args = (struct VisualizacionArgs*)arg;
-    int intervalo = args->intervalo;
-
+// Funcion para mostrar el estado de la sala
+void *muestra_estado_sala(void *vargp) {
+    // Bucle mediante para mostrar el estado de la sala
     while (1) {
-        usleep(intervalo * 1000);
+        // Bloquear el mutex
+        pthread_mutex_lock(&mutex); // Bloquear el mutex
 
-        // Bloquear el mutex antes de acceder a la sala
-        pthread_mutex_lock(&sala_mutex);
-
-        printf("Estado de la sala:\n");
-        for (int i = 1; i <= capacidad(); i++) {
-            int estado = estado_asiento(i);
-            if (estado == 0) {
-                printf("Asiento %d: LIBRE\n", i);
-            } else {
-                printf("Asiento %d: OCUPADO por hilo %d\n", i, estado);
-            }
+        // Mostrar el estado de la sala
+        printf("Estado de la sala: \n");
+        // Recorremos el numero de asientos
+        for (int i = 1; i < NUM_ASIENTOS; i++) {
+            printf("%d ", estado_asiento(i));
         }
         printf("\n");
 
-        // Desbloquear el mutex después de acceder a la sala
-        pthread_mutex_unlock(&sala_mutex);
+        // Desbloquear el mutex
+        pthread_mutex_unlock(&mutex); // Desbloquear el mutex
+
+        pausa_aleatoria(1.0);
     }
+
+    // Retornar NULL
+    return NULL;
 }
 
-// Función principal
-int main(int argc, char* argv[]) {
-    // Comprobar el número de argumentos
+// Funcion principal
+int main(int argc, char *argv[]) {
+    // Inicializar la semilla aleatoria, si no se hace, siempre se generan los mismos numeros
+    srand(getpid());
+
+    // Comprobar el numero de argumentos
     if (argc != 2) {
-        printf("Uso: %s n\n", argv[0]);
-        printf("Donde n es el número de hilos\n");
+        // Mostrar el uso correcto del programa
+        printf("Uso: multihilos n\n");
         return 1;
     }
+    
+    // Convertir el argumento a entero
+    int n = atoi(argv[1]);
 
-    // Convertir el argumento a un entero
-    int num_hilos = atoi(argv[1]);
-    pthread_t hilos[num_hilos];
-    struct VisualizacionArgs visualizacion_args;
-    visualizacion_args.intervalo = 5000; // Intervalo de visualización en milisegundos
-    crea_sala(30); // Crear una sala con capacidad para 30 asientos
+    // Crear el array de hilos
+    pthread_t threads[n];
+    // Crear la sala
+    crea_sala(NUM_ASIENTOS);
 
-    // Crear hilo de visualización del estado de la sala
-    pthread_t visualizacion_hilo;
-    pthread_create(&visualizacion_hilo, NULL, visualizar_estado, (void*)&visualizacion_args);
+    // Inicializar el mutex
+    pthread_mutex_init(&mutex, NULL);
 
-    // Crear hilos de reserva y liberación de asientos
-    for (int i = 0; i < num_hilos; i++) {
-    pthread_create(&hilos[i], NULL, reservas_wrapper, (void*)(intptr_t)i);
+    // Crear el hilo para mostrar el estado de la sala
+    pthread_t thread_estado_sala;
+    // Crear el hilo
+    pthread_create(&thread_estado_sala, NULL, muestra_estado_sala, NULL);
+
+    // Crear los hilos
+    for (int i = 0; i < n; i++) {
+        // Creamos los hilos y llamamos a la funcion reserva_y_libera
+        pthread_create(&threads[i], NULL, reserva_y_libera, NULL);
     }
-    // Esperar a que los hilos de reserva y liberación terminen
-    for (int i = 0; i < num_hilos; i++) {
-        pthread_join(hilos[i], NULL);
+
+    // Esperar a que terminen los hilos
+    for (int i = 0; i < n; i++) {
+        // Hacemos un join para que los hilos terminen
+        pthread_join(threads[i], NULL);
     }
 
-    // Detener el hilo de visualización del estado de la sala
-    pthread_cancel(visualizacion_hilo);
-    pthread_join(visualizacion_hilo, NULL);
+    // Cancelar el hilo que muestra el estado de la sala
+    pthread_cancel(thread_estado_sala);
 
-    elimina_sala(); // Eliminar la sala
+    // Destruir el mutex
+    pthread_mutex_destroy(&mutex);
+
+    // Eliminar la sala, finalizar el programa
+    elimina_sala();
 
     return 0;
 }
-

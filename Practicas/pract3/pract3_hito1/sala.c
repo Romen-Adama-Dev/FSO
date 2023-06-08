@@ -1,5 +1,5 @@
 // File: sala.c
-// Created: 02-05-2023 11:00:00
+// Created: 09-06-2023 12:00:00
 // Author:  Romen Adama Caetano Ramirez
 
 //Practica 1 Librerias
@@ -13,7 +13,7 @@
 #include <unistd.h>
 #include <errno.h>
 
-// Estructura para la sala
+// Estructura de la sala
 typedef struct {
     int *asientos; // Puntero al array de asientos
     int capacidad; // Capacidad de la sala
@@ -23,9 +23,9 @@ typedef struct {
 
 static Sala *sala = NULL; // Puntero a la sala global
 
-// Constantes para los valores de retorno de error o de éxito
 typedef enum {
     NO_ERROR = 0,
+    ERROR = -1,
     ASIENTO_SIN_RESERVAR = 0,
     ERR_CAPACIDAD_INVALIDA = -1,
     ERR_ID_CLIENTE_YA_EXISTE = -1,
@@ -40,9 +40,10 @@ typedef enum {
     ERR_SALA_NO_CREADA = -1,
     ERR_LEER_ARCHIVO = -1,
     ERR_NUM_ASIENTOS = -1,
+    ERR_CARRAR_ARCHIVO = -1,
 } sala_error;
 
-// Función principal para crear la sala
+// Crea una sala con la capacidad indicada
 void crea_sala(int capacidad) {
     // Comprobar si ya existe una sala creada
     if (sala != NULL) {
@@ -82,7 +83,7 @@ void crea_sala(int capacidad) {
     }
 }
 
-// Función para eliminar la sala
+// Elimina la sala y libera la memoria
 void elimina_sala() {
     // Comprobar que la sala exista
     if (sala == NULL) {
@@ -100,7 +101,7 @@ void elimina_sala() {
     sala = NULL;
 }
 
-// Función para reservar un asiento
+// Reserva un asiento y devuelve el número de asiento reservado o un código de error
 int reserva_asiento(int id) {
     // Contstantes internas para los valores de retorno
     const int ASIENTO_SIN_RESERVAR = 0; // Ejemplo de valor de retorno para cuando el asiento está libre
@@ -134,7 +135,7 @@ int reserva_asiento(int id) {
 return ERR_SIN_ASIENTOS_LIBRES;
 }
 
-// Función para liberar un asiento
+// Libera un asiento y devuelve el id del cliente que lo tenía reservado
 int libera_asiento(int asiento) {
     // Comprobar que la sala exista
     if (sala == NULL) {
@@ -178,7 +179,6 @@ int asientos_libres() {
     }
     return sala->libres;
 }
-
 // Devuelve el número de asientos ocupados
 int asientos_ocupados() {
     if (sala == NULL) {
@@ -186,7 +186,6 @@ int asientos_ocupados() {
     }
     return sala->ocupados;
 }
-
 // Devuelve la capacidad de la sala
 int capacidad() {
     if (sala == NULL) {
@@ -195,143 +194,3 @@ int capacidad() {
     return sala->capacidad;
     
 }
-
-// Funcion para guardar el estado de la sala en un fichero
-int guarda_estado_sala(const char* ruta_fichero) {
-    // Comprobar que la sala exista
-    int fd = open(ruta_fichero, O_RDWR | O_CREAT | O_TRUNC, 0666);
-    // Comprobar que se haya podido abrir el fichero
-    if (fd == -1) {
-        return ERR_ABRIR_ARCHIVO;
-    }
-    
-    // Puntero auxiliar para convertir los enteros a caracteres
-    char* puntero_caracteres_auxiliar = malloc(sizeof(int));
-    // Comprobar que se haya podido asignar memoria
-    sprintf(puntero_caracteres_auxiliar, "%d", sala->capacidad);
-    // Escribir la capacidad de la sala
-    write(fd, puntero_caracteres_auxiliar, strlen(puntero_caracteres_auxiliar));
-    write(fd, "\n", sizeof(char));
-    
-    // Recorrer el array de asientos y escribirlos en el fichero
-    for (int i = 0; i < sala->capacidad; i++) {
-        sprintf(puntero_caracteres_auxiliar, "%d", sala->asientos[i]);
-        write(fd, puntero_caracteres_auxiliar, strlen(puntero_caracteres_auxiliar));
-        write(fd, "\n", sizeof(char));
-    }
-    
-    // Liberar la memoria
-    free(puntero_caracteres_auxiliar);
-    // Cerrar el fichero
-    close(fd);
-    return NO_ERROR;
-}
-
-// Funcion para recuperar el estado de la sala desde un fichero
-int recupera_estado_sala(const char* ruta_fichero) {
-    // Comprobar que el fichero exista
-    int fd = open(ruta_fichero, O_RDONLY);
-    if (fd == -1) {
-        return ERR_ABRIR_ARCHIVO;
-    }
-
-    // Punteror palabra para leer la capacidad de la sala
-    char* palabra = malloc(sizeof(int)); // reservamos memoria para la palabra
-    int capacidad, pos = 0;
-    
-    // leemos la capacidad de la sala
-    while (0 < read(fd, palabra + pos, sizeof(char))) { // leemos carácter a carácter
-        if (*(palabra + pos) == '\0') break;
-        if (*(palabra + pos) == '\n') break; // si encontramos un espacio, paramos la lectura
-        pos++;
-    }
-    
-    capacidad = atoi(palabra); // convertimos la palabra a un entero
-    crea_sala(capacidad); // creamos la sala
-    //free(palabra); // liberamos la memoria reservada
-
-    // leemos los asientos de la sala
-    
-    //palabra = malloc(sizeof(int)*capacidad);
-    for (int i = 0; i < capacidad; i++) {
-        palabra = realloc(palabra, sizeof(int));
-        pos = 0;
-        while (0 < read(fd, palabra + pos, sizeof(char))) {
-            if (*(palabra + pos) == '\0') break;
-            if (*(palabra + pos) == '\n') break;
-            pos++;
-        }
-        
-        sala->asientos[i] = atoi(palabra);
-    }
-    free(palabra); // liberamos la memoria reservada
-
-    close(fd); // cerramos el archivo
-    return NO_ERROR;
-    
-}
-
-// Funcion para guardar el estado parcial de la sala en un fichero
-int guarda_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos) {
-    int fd = open(ruta_fichero, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-    if (fd == -1) {
-        return ERR_ABRIR_ARCHIVO; // error al abrir el fichero
-    }
-    
-    // Escribir el número de asientos en el fichero
-    ssize_t num_escritos = write(fd, &num_asientos, sizeof(size_t));
-    if (num_escritos != sizeof(size_t)) {
-        close(fd);
-        return ERR_ESCRIBRIR_ARCHIVO; // error al escribir en el fichero
-    }
-    
-    // Escribir los identificadores de los asientos en el fichero
-    num_escritos = write(fd, id_asientos, sizeof(int) * num_asientos);
-    close(fd);
-    if (num_escritos != sizeof(int) * num_asientos) {
-        return ERR_ESCRIBRIR_ARCHIVO; // error al escribir en el fichero
-    }
-    
-    return NO_ERROR; // todo ha ido bien
-}
-
-// Funcion para recuperar el estado parcial de la sala desde un fichero
-int recupera_estadoparcial_sala(const char* ruta_fichero, size_t num_asientos, int* id_asientos) {
-    int fd = open(ruta_fichero, O_RDONLY);
-    if (fd == -1) {
-        return ERR_ABRIR_ARCHIVO; // error al abrir el fichero
-    }
-
-    // Leer el número de asientos desde el fichero
-    size_t num_leidos;
-    ssize_t lectura = read(fd, &num_leidos, sizeof(size_t));
-    if (lectura != sizeof(size_t)) {
-        close(fd);
-        return ERR_LEER_ARCHIVO; // error al leer el fichero
-    }
-    
-    // Verificar que el número de asientos coincida
-    if (num_leidos != num_asientos) {
-        close(fd);
-        return ERR_NUM_ASIENTOS; // error: el número de asientos no coincide
-    }
-    
-    // Leer los identificadores de los asientos desde el fichero
-    ssize_t num_leidos_total = 0;
-    while (num_leidos_total < sizeof(int) * num_asientos) {
-        ssize_t lectura_actual = read(fd, id_asientos + num_leidos_total, sizeof(int) * num_asientos - num_leidos_total);
-        if (lectura_actual <= 0) {
-            break; // se alcanzó el final del archivo o se produjo un error de lectura
-        }
-        num_leidos_total += lectura_actual;
-    }
-
-    close(fd); // cerrar el archivo
-
-    if (num_leidos_total != sizeof(int) * num_asientos) {
-        return ERR_LEER_ARCHIVO; // error al leer el fichero
-    }
-    
-    return NO_ERROR; // todo ha ido bien
-}
-

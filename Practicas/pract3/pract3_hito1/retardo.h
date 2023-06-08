@@ -1,3 +1,4 @@
+// File: retardo.h
 // Utilidad para generar pausas aleatorias
 // Se pueden utilizar en las prácticas de programación concurrente
 

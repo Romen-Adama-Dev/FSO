@@ -1,0 +1,17 @@
+Hito 2
+
+El segundo hito del proyecto consiste en introducir mutexes para proteger el acceso a la sección crítica y resolver el problema evidenciado en el Hito 1. Las funciones de reserva y liberación de asientos ahora están protegidas por un mutex, lo que evita que dos hilos puedan modificar el mismo asiento al mismo tiempo.
+
+El código del Hito 2 presenta las siguientes funciones:
+
+ -crea_sala(int capacidad): Crea una sala con la capacidad especificada. Inicializa un mutex para controlar el acceso a la sala.
+    
+ -elimina_sala(): Elimina la sala existente, liberando la memoria asignada y destruyendo el mutex.
+    
+ -reserva_asiento(int id): Intenta reservar un asiento para un cliente con el ID especificado. Bloquea el acceso a la sala utilizando el mutex.
+ 
+ -libera_asiento(int asiento): Libera un asiento específico. Bloquea el acceso a la sala utilizando el mutex.
+ 
+ -estado_asiento(int asiento): Devuelve el estado de un asiento específico. Bloquea el acceso a la sala utilizando el mutex.
+
+ -asientos_libres(), asientos_ocupados(), capacidad(): Devuelven el número de asientos libres, ocupados y la capacidad total de la sala, respectivamente. Bloquean el acceso a la sala utilizando el mutex antes de acceder a los datos.
