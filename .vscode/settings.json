@@ -5,6 +5,7 @@
         "stdio.h": "c",
         "pthread.h": "c",
         "unistd.h": "c",
-        "sala.h": "c"
+        "sala.h": "c",
+        "stdlib.h": "c"
     }
 }

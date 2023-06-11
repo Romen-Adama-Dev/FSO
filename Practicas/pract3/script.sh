@@ -12,9 +12,9 @@ gcc -o hito2 multihilos.c sala.c retardo.c -lpthread
 cd ..
 
 # Compila el programa hito 3
-#cd pract3_hito3
-#gcc -o hito3 multihilos.c sala.c retardo.c -lpthread
-#cd ..
+cd pract3_hito3
+gcc -o hito3 multihilos.c sala.c retardo.c -lpthread
+cd ..
 
 # Ejecuta el programa
 #./hito1 n
