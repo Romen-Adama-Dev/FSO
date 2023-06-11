@@ -1,0 +1,55 @@
+Archivo: multihilos.txt
+Creado: 09-06-2023 12:00:00
+Autor: Romen Adama Caetano Ramirez
+Programa que realiza reserva y liberación de asientos de forma concurrente.
+
+Librerías de C:
+- stdio.h: Proporciona las funciones básicas de entrada/salida estándar.
+- stdlib.h: Proporciona funciones para la gestión de memoria dinámica, conversiones numéricas y otras utilidades.
+- unistd.h: Proporciona constantes y funciones para el uso de llamadas al sistema.
+- pthread.h: Proporciona las funciones y estructuras necesarias para trabajar con hilos en C.
+- stdint.h: Proporciona definiciones de tipos de enteros de tamaño fijo.
+- sala.h: Archivo de cabecera que contiene definiciones y funciones relacionadas con la sala de asientos.
+- retardo.h: Archivo de cabecera que contiene definiciones y funciones relacionadas con retardos aleatorios.
+
+Variables globales definidas:
+- NUM_ASIENTOS: Define el número total de asientos en la sala.
+- MAX_RESERVAS: Define el número máximo de reservas que realizará cada hilo.
+
+Variables globales declaradas:
+- reservas_pendientes: Contador para llevar el seguimiento de las reservas pendientes.
+- liberaciones_pendientes: Contador para llevar el seguimiento de las liberaciones pendientes.
+
+Variable mutex y condiciones:
+- cerrojo: Variable mutex utilizada para proteger el acceso a las variables compartidas.
+- cond_reserva: Variable condición utilizada para la espera de reservas.
+- cond_libera: Variable condición utilizada para la espera de liberaciones.
+
+Función reserva_asientos:
+- Esta función es ejecutada por los hilos de reserva.
+- Realiza un bucle para hacer tres reservas de asientos.
+- Bloquea el mutex, incrementa el contador de reservas pendientes y verifica las condiciones para realizar la reserva.
+- Si las condiciones no se cumplen, el hilo se bloquea utilizando pthread_cond_wait.
+- Reserva un asiento aleatorio utilizando la función reserva_asiento y actualiza las variables pertinentes.
+- Desbloquea el mutex, permite que otros hilos realicen operaciones y pausa por un tiempo aleatorio.
+
+Función libera_asientos:
+- Esta función es ejecutada por los hilos de liberación.
+- Realiza un bucle para hacer tres liberaciones de asientos.
+- Bloquea el mutex, incrementa el contador de liberaciones pendientes y verifica las condiciones para realizar la liberación.
+- Si las condiciones no se cumplen, el hilo se bloquea utilizando pthread_cond_wait.
+- Libera un asiento aleatorio utilizando la función libera_asiento y actualiza las variables pertinentes.
+- Desbloquea el mutex, permite que otros hilos realicen operaciones y pausa por un tiempo aleatorio.
+
+Función muestra_estado_sala:
+- Esta función es ejecutada por un hilo separado para mostrar el estado actual de la sala.
+- Se ejecuta en un bucle infinito.
+- Bloquea el mutex, muestra el estado de la sala utilizando printf y desbloquea el mutex.
+- Pausa por un tiempo aleatorio antes de repetir el bucle.
+
+Función main:
+- En la función principal, se realiza el procesamiento principal del programa.
+- Verifica los argumentos proporcionados en la línea de comandos.
+- Convierte los argumentos en enteros y establece la semilla aleatoria.
+- Reserva memoria para los hilos de reserva y liberación.
+- Inicializa las condiciones y crea el hilo que muestra el estado de la sala.

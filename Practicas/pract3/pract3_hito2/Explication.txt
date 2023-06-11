@@ -1,17 +1,65 @@
-Hito 2
+Archivo: sala.c
+Creado: 09-06-2023 12:00:00
+Autor: Romen Adama Caetano Ramirez
 
-El segundo hito del proyecto consiste en introducir mutexes para proteger el acceso a la sección crítica y resolver el problema evidenciado en el Hito 1. Las funciones de reserva y liberación de asientos ahora están protegidas por un mutex, lo que evita que dos hilos puedan modificar el mismo asiento al mismo tiempo.
+Práctica 1 Librerías:
+- Incluye las librerías necesarias para el funcionamiento básico del programa.
 
-El código del Hito 2 presenta las siguientes funciones:
+Práctica 2 Librerías:
+- Incluye las librerías necesarias para trabajar con archivos, llamadas al sistema y manejo de errores.
 
- -crea_sala(int capacidad): Crea una sala con la capacidad especificada. Inicializa un mutex para controlar el acceso a la sala.
-    
- -elimina_sala(): Elimina la sala existente, liberando la memoria asignada y destruyendo el mutex.
-    
- -reserva_asiento(int id): Intenta reservar un asiento para un cliente con el ID especificado. Bloquea el acceso a la sala utilizando el mutex.
- 
- -libera_asiento(int asiento): Libera un asiento específico. Bloquea el acceso a la sala utilizando el mutex.
- 
- -estado_asiento(int asiento): Devuelve el estado de un asiento específico. Bloquea el acceso a la sala utilizando el mutex.
+Práctica 3 Librerías:
+- Incluye la biblioteca de hilos (pthread.h) y la biblioteca para trabajar con variables booleanas (stdbool.h).
 
- -asientos_libres(), asientos_ocupados(), capacidad(): Devuelven el número de asientos libres, ocupados y la capacidad total de la sala, respectivamente. Bloquean el acceso a la sala utilizando el mutex antes de acceder a los datos.
+Enums y constantes de error y éxito:
+- Define un enum con los posibles códigos de error y éxito que puede devolver la API de la sala.
+
+Estructura de la sala:
+- Define una estructura llamada "Sala" que representa la sala de asientos.
+- Contiene un puntero a un array de asientos, la capacidad de la sala, el número de asientos libres y el número de asientos ocupados.
+- También incluye un mutex para sincronizar el acceso a la sala.
+
+Puntero a la sala global:
+- Declara un puntero llamado "sala" que apunta a la sala global.
+
+Función crea_sala:
+- Crea una sala con la capacidad especificada.
+- Verifica que no exista una sala creada previamente y que la capacidad sea válida.
+- Asigna memoria para la estructura de la sala y el array de asientos.
+- Inicializa la capacidad, número de asientos libres y ocupados.
+- Inicializa todos los asientos como libres.
+- Inicializa el mutex de la sala.
+
+Función elimina_sala:
+- Elimina la sala y libera la memoria asignada.
+- Verifica si existe una sala creada.
+- Libera la memoria de la sala y el array de asientos.
+- Destruye el mutex de la sala.
+
+Función reserva_asiento:
+- Reserva un asiento y devuelve el número de asiento reservado o un código de error.
+- Bloquea el mutex para sincronizar el acceso a la sala.
+- Comprueba si hay una sala creada y si hay asientos libres.
+- Busca un asiento libre en el array de asientos y lo reserva.
+- Actualiza el número de asientos libres y ocupados.
+- Desbloquea el mutex y devuelve el número de asiento reservado.
+
+Función libera_asiento:
+- Libera un asiento y devuelve el ID del cliente que lo tenía reservado.
+- Bloquea el mutex para sincronizar el acceso a la sala.
+- Comprueba si hay una sala creada, si el asiento es válido y si está ocupado.
+- Libera el asiento y actualiza el número de asientos libres y ocupados.
+- Desbloquea el mutex y devuelve el ID del cliente.
+
+Función estado_asiento:
+- Devuelve el ID del cliente que tiene reservado el asiento o 0 si está libre.
+- Bloquea el mutex para sincronizar el acceso a la sala.
+- Comprueba si hay una sala creada y si el asiento es válido.
+- Comprueba si el asiento está libre y devuelve el estado correspondiente.
+- Desbloquea el mutex y devuelve el estado del asiento.
+
+Funciones asientos_libres, asientos_ocupados y capacidad:
+- Devuelven el número de asientos libres, ocupados y la capacidad de la sala, respectivamente.
+- Bloquean el mutex para sincronizar el acceso a la sala.
+- Comprueban si hay una sala creada y devuelven la información correspondiente.
+- Desbloquean el mutex y devuelven el resultado.
