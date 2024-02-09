@@ -1,0 +1,38 @@
+1. FCFS Estricto (First Come, First Served)
+En este método, se respeta el orden de llegada de las personas. Los tiempos de atención son: Alicia (10 min), Bencomo (12 min), Carlos (20 min), Diana (8 min), Esteban (1 min).
+
+Paso a paso:
+Alicia: no espera, porque es la primera. Su tiempo de espera es 0 minutos.
+Bencomo: espera que Alicia termine, 10 minutos.
+Carlos: espera que Alicia y Bencomo terminen, 10 + 12 = 22 minutos.
+Diana: espera que Alicia, Bencomo y Carlos terminen, 10 + 12 + 20 = 42 minutos.
+Esteban: espera que todos los anteriores terminen, 10 + 12 + 20 + 8 = 50 minutos.
+
+Calculamos el tiempo total de espera sumando los tiempos de espera individuales y dividimos por el número de personas para el tiempo medio:
+24.8 minutos
+
+2. Adelantamiento de Esteban
+En este escenario, Esteban se coloca al principio de la cola. Los tiempos de atención reordenados son: Esteban (1 min), Alicia (10 min), Bencomo (12 min), Carlos (20 min), Diana (8 min).
+
+Paso a paso:
+Esteban: es el primero ahora, así que no espera. Su tiempo de espera es 0 minutos.
+Alicia: espera solo a Esteban, 1 minuto.
+Bencomo: espera a Esteban y Alicia, 1 + 10 = 11 minutos.
+Carlos: espera a Esteban, Alicia y Bencomo, 1 + 10 + 12 = 23 minutos.
+Diana: espera a todos los anteriores, 1 + 10 + 12 + 20 = 43 minutos.
+
+Calculamos el tiempo total de espera sumando los tiempos de espera individuales y dividimos por el número de personas para el tiempo medio:
+15.6 minutos
+
+3. Política SJF (Shortest Job First)
+Esta política ordena a las personas por el tiempo de atención requerido, de menor a mayor. Los tiempos son: Esteban (1 min), Diana (8 min), Alicia (10 min), Bencomo (12 min), Carlos (20 min).
+
+Paso a paso:
+Esteban: no espera, su tiempo de espera es 0 minutos.
+Diana: espera a Esteban, 1 minuto.
+Alicia: espera a Esteban y Diana, 1 + 8 = 9 minutos.
+Bencomo: espera a Esteban, Diana y Alicia, 1 + 8 + 10 = 19 minutos.
+Carlos: espera a todos los anteriores, 1 + 8 + 10 + 12 = 31 minutos.
+
+Calculamos el tiempo total de espera sumando los tiempos de espera individuales y dividimos por el número de personas para el tiempo medio:
+12 minutos
