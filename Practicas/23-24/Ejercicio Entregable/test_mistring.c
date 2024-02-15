@@ -70,10 +70,23 @@ void test_mi_strcat()
 	FIN_TEST("mi_strcat");
 }
 
+void test_mi_strequals()
+{
+	INICIO_TEST("mi_strequals");
+	DebeSerCierto(mi_strequals("hola","hola"));
+	DebeSerFalso(mi_strequals("hola","hola "));
+	DebeSerFalso(mi_strequals("hola","hol"));
+	DebeSerFalso(mi_strequals("hola","adios"));
+	DebeSerFalso(mi_strequals("","hola"));
+	DebeSerCierto(mi_strequals("",""));
+	FIN_TEST("mi_strequals");
+}
+
 void ejecuta_tests ()
 {
 	test_mi_strlen();
 	test_mi_strcat();
+	test_mi_strequals();
 }
 
 int main()
