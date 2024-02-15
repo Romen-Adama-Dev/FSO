@@ -76,7 +76,7 @@ void ejecuta_tests ()
 	test_mi_strcat();
 }
 
-main()
+int main()
 {
 	puts("Iniciando tests...");
 	
