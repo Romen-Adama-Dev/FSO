@@ -42,3 +42,7 @@ int mi_strequals (char* s1, char* s2) {
     }
     return (*s1 - *s2) == 0 ? 1 : 0;
 }
+
+// Ejecutar con:
+// gcc -o test_mistring test_mistring.c mistring.c
+//./test_mistring
