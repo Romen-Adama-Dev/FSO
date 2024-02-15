@@ -12,6 +12,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>  // Añade esta línea al inicio de tu archivo
 
 // Este bloque es para probar que "test_mistring.c" está correctamente
 // escrito, sin necesidad de que aún esté implementado "mi_string.c"

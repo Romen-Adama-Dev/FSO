@@ -1,5 +1,6 @@
 #include "mistring.h"
 #include <stdlib.h>
+#include <stddef.h>
 
 int mi_strlen (char* str) {
     int len = 0;
@@ -25,8 +26,10 @@ char* mi_strcat (char* s1, char* s2) {
 }
 
 char* mi_strdup (char* str) {
-    char* dup = malloc((mi_strlen(str) + 1) * sizeof(char));
-    if (dup != 0) {
+    char* dup = (char*) malloc((mi_strlen(str) + 1) * sizeof(char));
+
+
+    if (dup != NULL) {
         mi_strcpy(dup, str);
     }
     return dup;
